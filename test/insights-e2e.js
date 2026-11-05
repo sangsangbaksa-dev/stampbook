@@ -39,7 +39,7 @@ const srv = http.createServer((q, r) => {
   await pg.locator('.foot button', { hasText: 'Mark unpaid' }).first().click(); assert.equal(await pg.locator('.chip', { hasText: 'Unpaid' }).count(), 1);
   await pg.click('.tabs button >> nth=2'); await pg.waitForSelector('.ins .bars'); assert.ok((await pg.locator('.ins').textContent()).includes('Awaiting payment'));
   await pg.locator('.ins button', { hasText: 'Stats CSV' }).click(); // (no gate: the app is licensed)
-  await pg.selectOption('select', 'ko'); await pg.waitForSelector('.ins .bars');
+  await pg.selectOption('header select', 'ko'); await pg.waitForSelector('.ins .bars');
   assert.ok((await pg.locator('.tabs').textContent()).includes('통계'));
   await pg.screenshot({ path: out + '/insights-ko.png', fullPage: true });
   console.log(errs.length ? 'ERRORS: ' + errs.join('\n') : 'INSIGHTS E2E OK'); await b.close(); srv.close(); process.exit(errs.length ? 1 : 0);

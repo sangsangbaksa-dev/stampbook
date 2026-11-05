@@ -77,6 +77,7 @@ u.k-lesson{background:var(--stamp)}u.k-noshow{background:var(--warn)}u.k-excused
 .dots u,.legend u{display:inline-block;width:7px;height:7px;border-radius:50%;text-decoration:none}
 .legend{display:flex;gap:14px;flex-wrap:wrap;margin:10px 0 14px}
 .calday h3,.ins h3{font:700 16px var(--serif);margin:0 0 8px}
+.ai-list{list-style:none;margin:0;padding:0}.ai-list li{padding:6px 0;border-top:1px dashed var(--line);overflow-wrap:anywhere}.ai-list li:first-child{border-top:0}
 .evs{list-style:none;margin:0;padding:0}.evs li{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;padding:6px 0;border-top:1px dashed var(--line)}.evs li:first-child{border-top:0}
 .bars{display:flex;gap:6px;align-items:flex-end;height:130px}
 .bar{flex:1;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:2px;min-width:0}

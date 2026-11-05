@@ -240,6 +240,7 @@
       h('div', {}, [h('b', {}, String(ov.students)), h('span', {}, T('ovStudents'))]),
       h('div', {}, [h('b', {}, String(ov.lessons)), h('span', {}, T('ovLessons'))]),
       h('div', {}, [h('b', {}, ov.noshowRate + '%'), h('span', {}, T('ovNoshow'))])]));
+    box.appendChild(aiCard(today));
     var prevYm = C.ymAdd(today.slice(0, 7), -1), prevN = C.monthStats(state.packs, prevYm).lessons;
     if (prevN) box.appendChild(h('div', { class: 'card' }, [h('h3', {}, T('lastMonthH') + ' · ' + fmt({ year: 'numeric', month: 'long' }, prevYm + '-01')),
       h('div', { class: 'sum', style: 'grid-template-columns:1fr 1fr;margin:0' }, [
@@ -296,6 +297,148 @@
     }))]));
     return box;
   }
+  /* ---------- AI suggestions (optional, your own API key) ---------- */
+  /* The key lives under AI_KEY, outside the saved state, so backups and cloud sync never carry it.
+     Nothing is sent until "Ask AI" is pressed. Only lesson counts, days left, milestone numbers and the typed idea go out. */
+  var AI_KEY = 'stampbook-ai-key', aiMem = '', aiPackId = '', aiIdea = '', aiRes = null, aiResPack = '', aiBusy = false, aiSeq = 0;
+  var aiStatKey = '', aiStat = null, aiOut = null, aiBtn = null, aiCopyBtn = null, aiKeyIn = null, aiKeyMsg = null;
+
+  function readAiKey() {
+    try { var v = localStorage.getItem(AI_KEY); if (v && v.trim()) return v.trim(); } catch (e) { /* storage blocked: use the page copy */ }
+    return aiMem;
+  }
+  function saveAiKey(k) {
+    try { localStorage.setItem(AI_KEY, k); aiMem = ''; return true; } catch (e) { aiMem = k; return false; }
+  }
+  function forgetAiKey() {
+    aiMem = '';
+    try { localStorage.removeItem(AI_KEY); } catch (e) { /* nothing stored */ }
+  }
+  function keyStatusText() { var k = readAiKey(); return k ? T('aiKeySaved', { tail: k.slice(-4) }) : T('aiKeyNone'); }
+  function aiPackNow() { return state.packs.filter(function (p) { return p.id === aiPackId; })[0] || null; }
+  function aiStatusText() { return aiStatKey ? T(aiStatKey) : (readAiKey() ? '' : T('aiNeedKey')); }
+  function setAiStat(key) { aiStatKey = key || ''; if (aiStat) aiStat.textContent = aiStatusText(); }
+  function setAiBtn() { if (aiBtn) aiBtn.disabled = !readAiKey() || aiBusy || !aiPackNow(); }
+  function aiHasResult() { return !!aiRes && aiResPack === aiPackId && (aiRes.none || aiRes.items.length > 0); }
+  function aiErrKey(e) {
+    if (!e || typeof e.status !== 'number') return 'aiErrNet';
+    if (e.status === 401 || e.status === 403) return 'aiErrKey';
+    if (e.status === 429) return 'aiErrRate';
+    return 'aiErrHttp';
+  }
+  function renderAiResults() {
+    if (aiOut) {
+      aiOut.textContent = '';
+      if (aiHasResult()) {
+        if (aiRes.none) aiOut.appendChild(h('li', {}, T('aiNone')));
+        aiRes.items.forEach(function (s) { aiOut.appendChild(h('li', {}, s)); });
+      }
+    }
+    if (aiCopyBtn) aiCopyBtn.disabled = !aiHasResult() || aiRes.items.length === 0;
+  }
+  function aiAsk() {
+    var key = readAiKey(), p = aiPackNow();
+    if (!key || !p || aiBusy) return;
+    var seq = ++aiSeq, packId = p.id;
+    aiBusy = true;
+    aiRes = null;
+    setAiStat('aiWorking');
+    setAiBtn();
+    renderAiResults();
+    var body = JSON.stringify(C.requestBody(C.suggestPrompt(C.suggestFacts(p, C.todayStr()), aiIdea, lang)));
+    var req;
+    try {
+      req = fetch(C.AI.url, {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          'x-api-key': key,
+          'anthropic-version': C.AI.version,
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: body,
+        cache: 'no-store'
+      });
+    } catch (e) { req = Promise.reject(e); }
+    req.then(function (r) {
+      if (!r.ok) { var err = new Error('http'); err.status = r.status; throw err; }
+      return r.json();
+    }).then(function (j) {
+      if (seq !== aiSeq) return;
+      var parsed = C.parseSuggestions(C.replyText(j));
+      if (!parsed.none && parsed.items.length === 0) { setAiStat('aiBad'); return; }
+      aiRes = parsed;
+      aiResPack = packId;
+      setAiStat(parsed.none ? '' : 'aiDone');
+    }).catch(function (e) {
+      if (seq !== aiSeq) return;
+      setAiStat(aiErrKey(e));
+    }).then(function () {
+      if (seq !== aiSeq) return;
+      aiBusy = false;
+      setAiBtn();
+      renderAiResults();
+    });
+  }
+  function aiSaveKey() {
+    var k = aiKeyIn.value.trim();
+    if (!k) { if (aiKeyMsg) aiKeyMsg.textContent = T('aiKeyEmpty'); return; }
+    var stored = saveAiKey(k);
+    aiKeyIn.value = '';
+    if (aiKeyMsg) aiKeyMsg.textContent = stored ? keyStatusText() : T('aiKeyNostore');
+    setAiStat(aiStatKey);
+    setAiBtn();
+  }
+  function aiForgetKey() {
+    forgetAiKey();
+    aiKeyIn.value = '';
+    if (aiKeyMsg) aiKeyMsg.textContent = keyStatusText();
+    setAiStat(aiStatKey);
+    setAiBtn();
+  }
+
+  /* The Insights card: milestones worked out on this device, plus an optional AI suggestion for the chosen pack. */
+  function aiCard(today) {
+    var pick = aiPackNow() || state.packs.filter(function (p) { return ['active', 'low'].indexOf(C.status(p, today)) >= 0; })[0] || state.packs[0];
+    if (!pick) return h('span', {});
+    aiPackId = pick.id;
+    var plan = h('ul', { class: 'evs' }, C.milestones(pick).map(function (m) {
+      return h('li', {}, [h('b', {}, T('aiAt', { n: m.at })),
+        h('span', { class: 'ln' }, T('aiR_' + m.kind) + ' · ' + T('aiM_' + m.kind, { n: m.at }) + ' · ' + (m.reached ? T('aiReached') : T('aiLeft', { n: m.left })))]);
+    }));
+    var sel = h('select', { 'aria-label': T('aiPack'), onchange: function (e) { aiPackId = e.target.value; aiSeq++; aiBusy = false; aiStatKey = ''; render(); } },
+      state.packs.map(function (p) { return h('option', { value: p.id, selected: p.id === aiPackId ? 'selected' : false }, p.student + ' · ' + C.used(p) + '/' + p.total); }));
+    var idea = h('input', { type: 'text', maxlength: String(C.AI.maxIdea), value: aiIdea, placeholder: T('aiIdeaPh'), 'aria-label': T('aiIdea'), oninput: function (e) { aiIdea = e.target.value; } });
+    aiKeyIn = h('input', { type: 'password', autocomplete: 'off', spellcheck: 'false', 'aria-label': T('aiKeyLabel') });
+    aiKeyMsg = h('p', { class: 'note', 'aria-live': 'polite' }, keyStatusText());
+    aiOut = h('ul', { class: 'ai-list', 'aria-live': 'polite' });
+    aiStat = h('p', { class: 'note', 'aria-live': 'polite' }, aiStatusText());
+    aiBtn = h('button', { class: 'pri', type: 'button', onclick: aiAsk }, T('aiAsk'));
+    aiCopyBtn = h('button', { class: 'ghost sm', type: 'button', onclick: function () { if (aiHasResult()) copy(aiRes.items.join('\n'), T('aiCopied')); } }, T('aiCopy'));
+    setAiBtn();
+    renderAiResults();
+    return h('div', { class: 'card ai' }, [
+      h('h3', {}, T('aiTitle')),
+      h('p', { class: 'note' }, T('aiHint')),
+      h('label', {}, [T('aiPack'), sel]),
+      plan,
+      h('label', {}, [T('aiIdea'), idea]),
+      h('div', { class: 'row', style: 'margin:8px 0' }, [aiBtn, aiCopyBtn]),
+      aiStat,
+      aiOut,
+      h('p', { class: 'note' }, T('aiPrivacy')),
+      h('details', { class: 'ai-key' }, [
+        h('summary', {}, T('aiKeyTitle')),
+        h('p', { class: 'note' }, T('aiKeyHint')),
+        h('label', {}, [T('aiKeyLabel'), aiKeyIn]),
+        h('div', { class: 'row' }, [
+          h('button', { class: 'ghost sm', type: 'button', onclick: aiSaveKey }, T('aiSave')),
+          h('button', { class: 'ghost sm', type: 'button', onclick: aiForgetKey }, T('aiForget'))]),
+        aiKeyMsg
+      ])
+    ]);
+  }
+
   function renderList() {
     if (!listBox) return;
     var today = C.todayStr(), order = { low: 0, active: 1, expired: 2, done: 3 };
