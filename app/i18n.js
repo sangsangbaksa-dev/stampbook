@@ -142,7 +142,9 @@
       skipped: 'Skipped',
       mergeAsk: 'Merge this backup into your current data? OK merges (nothing is lost). Cancel replaces everything with the backup.',
       merged: 'Merged: {a} new pack(s), {m} updated.',
-      statsCsvBtn: 'Stats CSV'
+      statsCsvBtn: 'Stats CSV',
+      filterUnpaid: 'Unpaid', filterEnded: 'Ended', lastMonthH: 'Last month', lastBackup: 'Last backup: {date}', lastBackupNone: 'No backup yet.',
+      ringLabel: '{used} of {total} lessons used', planH: 'Planned lessons', planDate: 'Lesson date', planAdd: 'Add lesson', planAdded: 'Lesson planned for {date}.', planDup: 'That date is already planned.', planNone: 'No extra lessons planned. Weekly days still show up on their own.', groupPacks: 'Show packs', groupStudent: 'Group by student', groupSum: '{n} left in {p} pack(s)', logCsvBtn: 'Lesson log (CSV)', planBad: 'Enter a valid date.', planRange: 'That date is outside the pack dates.', planTaken: 'A lesson is already stamped on that date.', planClosed: 'That day is a class closure.', dupPack: 'Duplicate pack', dupDone: 'New pack for {name} created with the same terms.', endMsgBtn: 'End-of-pack message', endMsg: 'Hi {name}, that was the last lesson in your {total}-lesson pack. Thank you for a great run! Shall we set up the next one?'
     },
     ko: {
       name: '한국어', app: '스탬프북', tag: '수업마다 도장 꾹. 횟수로 다툴 일 없습니다.',
@@ -285,7 +287,9 @@
       skipped: '건너뜀',
       mergeAsk: '이 백업을 현재 데이터에 합칠까요? 확인은 합치기(지워지는 것 없음), 취소는 백업으로 전체 교체입니다.',
       merged: '합쳤습니다: 새 수강권 {a}개, 갱신 {m}개.',
-      statsCsvBtn: '통계 CSV'
+      statsCsvBtn: '통계 CSV',
+      filterUnpaid: '미결제', filterEnded: '종료', lastMonthH: '지난달', lastBackup: '마지막 백업: {date}', lastBackupNone: '아직 백업하지 않았어요.',
+      ringLabel: '{total}회 중 {used}회 사용', planH: '예정된 수업', planDate: '수업 날짜', planAdd: '수업 추가', planAdded: '{date} 수업을 예정했어요.', planDup: '그 날짜는 이미 예정돼 있어요.', planNone: '추가로 예정된 수업이 없어요. 주간 요일 수업은 자동으로 표시돼요.', groupPacks: '수강권별로 보기', groupStudent: '수강생별로 묶기', groupSum: '남은 {n}회, 수강권 {p}개', logCsvBtn: '수업 기록(CSV)', planBad: '올바른 날짜를 입력하세요.', planRange: '수강권 기간 밖의 날짜예요.', planTaken: '그 날짜에는 이미 도장이 있어요.', planClosed: '휴강일이에요.', dupPack: '수강권 복제', dupDone: '{name}님의 같은 조건 수강권을 만들었어요.', endMsgBtn: '수강권 종료 안내', endMsg: '{name}님, {total}회 수강권의 마지막 수업이었어요. 함께해 주셔서 감사합니다! 다음 수강권도 준비할까요?'
     },
     ja: {
       name: '日本語', app: 'スタンプブック', tag: 'レッスンごとに一つ、押す。回数で揉めない。',
@@ -428,7 +432,9 @@
       skipped: 'スキップ済み',
       mergeAsk: 'このバックアップを現在のデータに統合しますか?OKで統合(何も失われません)、キャンセルでバックアップに完全に置き換えます。',
       merged: '統合しました:新規 {a} 件、更新 {m} 件。',
-      statsCsvBtn: '集計CSV'
+      statsCsvBtn: '集計CSV',
+      filterUnpaid: '未払い', filterEnded: '終了', lastMonthH: '先月', lastBackup: '最終バックアップ: {date}', lastBackupNone: 'まだバックアップしていません。',
+      ringLabel: '{total}回中 {used}回消化', planH: '予定のレッスン', planDate: 'レッスン日', planAdd: 'レッスンを追加', planAdded: '{date}のレッスンを予定に入れました。', planDup: 'その日付はすでに予定されています。', planNone: '追加の予定はありません。週間スケジュールの曜日は自動で表示されます。', groupPacks: '回数券ごとに表示', groupStudent: '生徒さんごとにまとめる', groupSum: '残り{n}回、回数券{p}件', logCsvBtn: 'レッスン記録(CSV)', planBad: '正しい日付を入力してください。', planRange: '回数券の期間外の日付です。', planTaken: 'その日はすでに押印されています。', planClosed: 'その日は休講日です。', dupPack: '回数券を複製', dupDone: '{name}さんの同じ条件の回数券を作成しました。', endMsgBtn: '回数券終了のご案内', endMsg: '{name}さん、{total}回券の最後のレッスンでした。ありがとうございました！次の回数券も用意しましょうか?'
     },
     zh: {
       name: '中文', app: '印章本', tag: '上一节,盖一个章。课时数,不再扯皮。',
@@ -571,7 +577,9 @@
       skipped: '已跳过',
       mergeAsk: '要把此备份合并到当前数据吗?确定为合并(不会丢失任何内容),取消则用备份完全替换。',
       merged: '已合并:新增 {a} 个,更新 {m} 个。',
-      statsCsvBtn: '统计 CSV'
+      statsCsvBtn: '统计 CSV',
+      filterUnpaid: '未付款', filterEnded: '已结束', lastMonthH: '上个月', lastBackup: '上次备份: {date}', lastBackupNone: '还没有备份。',
+      ringLabel: '已上 {used}/{total} 节', planH: '预定课程', planDate: '上课日期', planAdd: '添加课程', planAdded: '已安排 {date} 的课程。', planDup: '该日期已安排。', planNone: '没有额外安排的课程。每周固定的上课日会自动显示。', groupPacks: '按课时包显示', groupStudent: '按学员分组', groupSum: '剩 {n} 节,{p} 个课时包', logCsvBtn: '上课记录(CSV)', planBad: '请输入有效日期。', planRange: '该日期不在课时包有效期内。', planTaken: '该日期已有盖章记录。', planClosed: '该日是停课日。', dupPack: '复制课时包', dupDone: '已为 {name} 创建同样条件的新课时包。', endMsgBtn: '课时包结束提醒', endMsg: '{name} 你好,这是你 {total} 节课时包的最后一节课。感谢一路同行!要不要安排下一个课时包?'
     },
     es: {
       name: 'Español', app: 'Sellos', tag: 'Cada clase, un sello. Nadie discute la cuenta.',
@@ -714,7 +722,9 @@
       skipped: 'Omitida',
       mergeAsk: '¿Combinar esta copia con tus datos actuales? Aceptar combina (no se pierde nada). Cancelar lo reemplaza todo por la copia.',
       merged: 'Combinado: {a} bono(s) nuevo(s), {m} actualizado(s).',
-      statsCsvBtn: 'CSV de estadísticas'
+      statsCsvBtn: 'CSV de estadísticas',
+      filterUnpaid: 'Sin pagar', filterEnded: 'Terminados', lastMonthH: 'Mes anterior', lastBackup: 'Última copia: {date}', lastBackupNone: 'Aún no hay copia.',
+      ringLabel: '{used} de {total} clases usadas', planH: 'Clases previstas', planDate: 'Fecha de la clase', planAdd: 'Añadir clase', planAdded: 'Clase prevista para el {date}.', planDup: 'Esa fecha ya está prevista.', planNone: 'No hay clases extra previstas. Los días fijos semanales aparecen solos.', groupPacks: 'Mostrar bonos', groupStudent: 'Agrupar por alumno', groupSum: 'Quedan {n} en {p} bono(s)', logCsvBtn: 'Registro de clases (CSV)', planBad: 'Introduce una fecha válida.', planRange: 'Esa fecha está fuera del periodo del bono.', planTaken: 'Ya hay una clase sellada en esa fecha.', planClosed: 'Ese día es un día sin clase.', dupPack: 'Duplicar bono', dupDone: 'Creado un bono nuevo para {name} con las mismas condiciones.', endMsgBtn: 'Mensaje de fin de bono', endMsg: 'Hola {name}, esa fue la última clase de tu bono de {total} clases. ¡Gracias por el buen trabajo! ¿Preparamos el siguiente?'
     }
   };
   function pick(pref) {

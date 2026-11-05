@@ -407,3 +407,129 @@ test('justCompleted is true only for the stamp that used up the pack', () => {
   C.addStamp(p, '2026-10-03'); const last = p.stamps[1].id;
   assert.equal(C.justCompleted(p, last), true); assert.equal(C.justCompleted(p, first), false);
 });
+
+test('packs filter: attention, unpaid and ended are separate; all matches everything', () => {
+  const today = '2026-11-05';
+  const ok = mk({ id: 'ok' }), unpaid = mk({ id: 'u', paid: false }), done = mk({ id: 'd', total: 1 }), old = mk({ id: 'x', expires: '2026-01-01' });
+  stamp(done, '2026-11-01');
+  assert.deepEqual(C.FILTERS, ['all', 'attn', 'unpaid', 'ended']);
+  const pick = (f) => [ok, unpaid, done, old].filter(p => C.matchesFilter(p, f, today)).map(p => p.id);
+  assert.deepEqual(pick('all'), ['ok', 'u', 'd', 'x']);
+  assert.deepEqual(pick('unpaid'), ['u']);
+  assert.deepEqual(pick('ended'), ['d', 'x'], 'complete or expired');
+  assert.deepEqual(pick('attn'), ['x'], 'expired with lessons left needs attention; complete does not');
+});
+
+test('cleanPacks keeps usable packs and stamps, drops the rest', () => {
+  const good = mk({ id: 'g', stamps: [{ id: 's1', date: '2026-10-05', note: '' }, { id: 's2', date: 'soon' }, { date: '2026-10-06' }, null] });
+  const out = C.cleanPacks([good, { id: 'n', student: 'No total', total: 0, stamps: [] }, { id: 'm', student: 'M', total: 3 }, null, { student: 'no id', total: 2, stamps: [] }]);
+  assert.deepEqual(out.map(p => p.id), ['g']);
+  assert.deepEqual(out[0].stamps.map(s => s.id), ['s1']);
+  assert.deepEqual(C.cleanPacks('not a list'), []);
+  assert.deepEqual(C.cleanPacks(undefined), []);
+});
+
+test('progress gives used out of total for the pack ring', () => {
+  const p = mk({ total: 4 }); stamp(p, '2026-10-01'); stamp(p, '2026-10-02', 'excused');
+  assert.deepEqual(C.progress(p), { used: 1, total: 4, pct: 0.25 });
+  assert.deepEqual(C.progress(mk({ total: 0 })), { used: 0, total: 0, pct: 0 });
+});
+
+test('planned dates add one-off lessons without changing the weekly pattern', () => {
+  const p = mk({ total: 5, expires: '' });
+  assert.equal(C.addPlanned(p, '2026-11-07'), true); assert.equal(C.addPlanned(p, '2026-11-07'), false, 'no duplicates');
+  assert.equal(C.addPlanned(p, 'soon'), false, 'bad dates are refused');
+  C.addPlanned(p, '2026-11-03');
+  assert.deepEqual(p.planned, ['2026-11-03', '2026-11-07']);
+  assert.deepEqual(C.upcoming(p, '2026-11-01', 14).map(e => e.date), ['2026-11-03', '2026-11-07']);
+  assert.equal(C.upcoming(p, '2026-11-01', 14)[0].planned, true);
+  assert.deepEqual(C.upcoming(p, '2026-11-04', 14).map(e => e.date), ['2026-11-07'], 'outside the window is left out');
+  assert.equal(C.removePlanned(p, '2026-11-03'), true); assert.equal(C.removePlanned(p, '2026-11-03'), false);
+  assert.deepEqual(p.planned, ['2026-11-07']);
+  C.removePlanned(p, '2026-11-07'); assert.equal(p.planned, undefined, 'an empty list is removed');
+});
+
+test('a planned date that is already stamped drops out; weekly and planned lessons merge in order', () => {
+  const q = mk({ total: 5, expires: '' }); C.addPlanned(q, '2026-11-03'); C.addStamp(q, '2026-11-03');
+  assert.deepEqual(C.upcoming(q, '2026-11-01', 14), []);
+  const w = sched(); C.addPlanned(w, '2026-11-05');
+  /* Mon 11-02 and Wed 11-04 from the weekly pattern, Thu 11-05 added by hand; sched() has 3 lessons left */
+  assert.deepEqual(C.upcoming(w, '2026-11-01', 14).map(e => e.date + (e.planned ? '*' : '')), ['2026-11-02', '2026-11-04', '2026-11-05*']);
+});
+
+test('skipPlanned removes an added lesson and skips a weekly one', () => {
+  const p = sched(); C.addPlanned(p, '2026-11-05');
+  assert.equal(C.skipPlanned(p, '2026-11-05'), false); assert.equal(p.planned, undefined);
+  assert.equal(C.skipPlanned(p, '2026-11-02'), true); assert.deepEqual(p.schedule.skip, ['2026-11-02']);
+});
+
+test('groupByStudent clusters packs by name and totals what is left on open packs', () => {
+  const a = mk({ id: 'a', student: 'Mina', total: 4 }), b = mk({ id: 'b', student: ' mina ', total: 2 }), c = mk({ id: 'c', student: 'Joon', total: 3, expires: '2026-01-01' });
+  const g = C.groupByStudent([a, c, b], '2026-11-05');
+  assert.deepEqual(g.map(x => x.student), ['Mina', 'Joon']);
+  assert.deepEqual(g[0].packs.map(p => p.id), ['a', 'b']);
+  assert.deepEqual([g[0].left, g[1].left], [6, 0], 'expired packs add nothing to what is left');
+});
+
+test('logCsv lists every stamp with its pack currency and flags', () => {
+  const p = mk({ student: 'Ann', currency: 'EUR', start: '2026-10-01' });
+  C.addStamp(p, '2026-10-05', 'scales'); C.addStamp(p, '2026-10-06', '', 'noshow'); C.addStamp(p, '2026-10-07', '', '', true);
+  const lines = C.logCsv([p]).split('\n');
+  assert.equal(lines[0], 'student,date,kind,make_up,note,pack_start,currency');
+  assert.equal(lines[1], 'Ann,2026-10-05,lesson,,scales,2026-10-01,EUR');
+  assert.equal(lines[2], 'Ann,2026-10-06,noshow,,,2026-10-01,EUR');
+  assert.equal(lines[3], 'Ann,2026-10-07,lesson,yes,,2026-10-01,EUR');
+  assert.equal(C.logCsv([]).split('\n').length, 1);
+});
+
+test('plannedProblem gives the reason a date cannot be added', () => {
+  const q = mk({ expires: '2026-12-31' });
+  assert.equal(C.plannedProblem(q, 'soon'), 'bad');
+  assert.equal(C.plannedProblem(q, '2026-09-01'), 'range', 'before the pack starts');
+  assert.equal(C.plannedProblem(q, '2027-01-02'), 'range', 'after the pack expires');
+  C.addStamp(q, '2026-11-02'); assert.equal(C.plannedProblem(q, '2026-11-02'), 'taken');
+  C.addPlanned(q, '2026-11-20'); assert.equal(C.plannedProblem(q, '2026-11-20'), 'dup');
+  assert.equal(C.plannedProblem(q, '2026-11-21'), '');
+  C.setClosures(['2026-11-21']);
+  try { assert.equal(C.plannedProblem(q, '2026-11-21'), 'closed'); assert.equal(C.addPlanned(q, '2026-11-21'), false); }
+  finally { C.setClosures([]); }
+});
+
+test('added lessons respect class closures, and the weekly pattern still applies', () => {
+  const w = sched(); C.addPlanned(w, '2026-11-05');
+  C.setClosures(['2026-11-05', '2026-11-04']);
+  try { assert.deepEqual(C.upcoming(w, '2026-11-01', 14).map(e => e.date), ['2026-11-02', '2026-11-09', '2026-11-11']); }
+  finally { C.setClosures([]); }
+});
+
+test('mergePacks carries planned lessons from the other device without duplicates', () => {
+  const a = mk({ id: 'a', planned: ['2026-11-20'] }), b = mk({ id: 'a', planned: ['2026-11-20', '2026-11-25'] });
+  const r = C.mergePacks([a], [b]);
+  assert.deepEqual(r.packs[0].planned, ['2026-11-20', '2026-11-25']); assert.equal(r.merged, 1);
+});
+
+test('cleanBackup repairs closures, waitlist and packs of a backup or saved state', () => {
+  const o = C.cleanBackup({ packs: [mk({ id: 'k' })], closures: ['2026-12-25', 'x'], waitlist: [{ name: 'Ana' }, { name: '' }, null] });
+  assert.deepEqual(o.closures, ['2026-12-25']); assert.deepEqual(o.waitlist.map(w => w.name), ['Ana']); assert.equal(o.packs.length, 1);
+  const e = C.cleanBackup({ packs: 'nope', closures: 'x', waitlist: {} });
+  assert.deepEqual([e.packs, e.closures, e.waitlist], [[], [], []]);
+});
+
+test('clonePack starts a fresh pack with the same terms, weekly days and ink', () => {
+  const p = sched({ price: 300 }); C.addStamp(p, '2026-11-02'); C.setInk(p, 2);
+  const c = C.clonePack(p, '2026-11-10', 'new1');
+  assert.equal(c.id, 'new1'); assert.equal(c.total, 3); assert.equal(c.price, 300); assert.equal(c.start, '2026-11-10');
+  assert.deepEqual(c.stamps, []); assert.deepEqual(c.schedule, { days: [1, 3], time: '18:30' }); assert.equal(c.ink, 2);
+  assert.equal(c.expires, C.addMonths('2026-11-10', 2));
+  assert.equal(p.stamps.length, 1, 'the original is untouched');
+});
+
+test('i18n placeholders match English in every language', () => {
+  const I = require('../app/i18n.js'), ph = (s) => (String(s).match(/\{\w+\}/g) || []).slice().sort().join(' ');
+  for (const k of Object.keys(I.L.en)) for (const l of I.langs) assert.equal(ph(I.L[l][k]), ph(I.L.en[k]), `${l}.${k} placeholders`);
+});
+
+test('cleanPacks keeps good planned dates only', () => {
+  assert.deepEqual(C.cleanPacks([mk({ id: 'z', planned: ['2026-11-03', 'nope', '2026-11-03'] })])[0].planned, ['2026-11-03']);
+  assert.equal(C.cleanPacks([mk({ id: 'y', planned: 'x' })])[0].planned, undefined);
+});
