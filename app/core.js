@@ -43,6 +43,7 @@
 
   function addStamp(p, date, note, kind, makeup) {
     kind = kind === 'noshow' || kind === 'excused' ? kind : '';
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(String(date || ''))) return false; /* a stamp needs a YYYY-MM-DD date, or it breaks the calendar and stats */
     if (kind !== 'excused' && remaining(p) <= 0) return false;
     var st = { id: 's' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), date: date, note: String(note || '').slice(0, 200), kind: kind };
     if (makeup && kind === '') st.mk = 1;
@@ -190,17 +191,49 @@
   /* class closures (dates the teacher is off for everyone); the app sets them before it draws anything */
   var closures = [];
   function setClosures(list) { closures = Array.isArray(list) ? list.slice() : []; }
-  /* planned lessons for one pack from `from` for `n` days: only while lessons remain, inside the validity window, skipping dates already stamped */
+  /* one-off lessons added by hand: p.planned = ['YYYY-MM-DD', ...]. Optional, so packs saved before it have none. */
+  function plannedDates(p) { return Array.isArray(p.planned) ? p.planned : []; }
+  /* why a date cannot be added as a planned lesson: '' when it can, else bad | dup | range | taken | closed */
+  function plannedProblem(p, date) {
+    if (!DATE_RE.test(String(date || ''))) return 'bad';
+    if (plannedDates(p).indexOf(date) !== -1) return 'dup';
+    if ((p.start && date < p.start) || (p.expires && date > p.expires)) return 'range';
+    if (p.stamps.some(function (s) { return s.date === date; })) return 'taken';
+    if (closures.indexOf(date) !== -1) return 'closed';
+    return '';
+  }
+  function addPlanned(p, date) {
+    if (plannedProblem(p, date) !== '') return false;
+    var list = plannedDates(p).slice();
+    list.push(date); list.sort(); p.planned = list; return true;
+  }
+  function removePlanned(p, date) {
+    var list = plannedDates(p).slice(), i = list.indexOf(date);
+    if (i === -1) return false;
+    list.splice(i, 1);
+    if (list.length) p.planned = list; else delete p.planned;
+    return true;
+  }
+  /* planned lessons for one pack from `from` for `n` days: weekly days plus added dates, only while lessons remain,
+     inside the validity window, skipping dates already stamped. Added dates ignore the closures list (a deliberate choice). */
   function upcoming(p, from, n) {
-    var out = [], left = remaining(p);
-    if (!p.schedule || !p.schedule.days || !p.schedule.days.length || left <= 0) return out;
-    var taken = {}; p.stamps.forEach(function (s) { taken[s.date] = 1; });
-    for (var i = 0; i < n && out.length < left; i++) {
-      var d = addDays(from, i);
+    var out = [], left = remaining(p), end = addDays(from, n - 1);
+    var extra = plannedDates(p).filter(function (d) { return d >= from && d <= end; });
+    var weekly = !!(p.schedule && p.schedule.days && p.schedule.days.length);
+    if (left <= 0 || (!weekly && !extra.length)) return out;
+    var cand = [], taken = {}, skip = (p.schedule && p.schedule.skip) || [], time = (p.schedule && p.schedule.time) || '', i;
+    p.stamps.forEach(function (s) { taken[s.date] = 1; });
+    if (weekly) for (i = 0; i < n; i++) cand.push(addDays(from, i));
+    extra.forEach(function (d) { if (cand.indexOf(d) === -1) cand.push(d); });
+    cand.sort();
+    for (i = 0; i < cand.length && out.length < left; i++) {
+      var d = cand[i], one = extra.indexOf(d) !== -1;
       if (p.start && d < p.start) continue;
       if (p.expires && d > p.expires) break;
-      if (taken[d] || p.schedule.days.indexOf(parse(d).getDay()) === -1 || (p.schedule.skip && p.schedule.skip.indexOf(d) !== -1) || closures.indexOf(d) !== -1) continue;
-      out.push({ date: d, time: p.schedule.time || '', packId: p.id, student: p.student });
+      if (taken[d] || skip.indexOf(d) !== -1) continue;
+      if (!one && p.schedule.days.indexOf(parse(d).getDay()) === -1) continue;
+      if (closures.indexOf(d) !== -1) continue; /* closures apply to added dates too: the teacher is off that day */
+      out.push({ date: d, time: time, packId: p.id, student: p.student, planned: one });
     }
     return out;
   }
@@ -249,6 +282,12 @@
     var sk = p.schedule.skip, save = p.schedule; p.schedule = { days: save.days, time: save.time };
     var all = upcoming(p, from, n); p.schedule = save;
     return all.map(function (e) { e.skipped = sk.indexOf(e.date) !== -1; return e; });
+  }
+
+  /* the skip action for a planned lesson: an added date is removed, a weekly one is skipped (or restored) */
+  function skipPlanned(p, date) {
+    if (removePlanned(p, date)) return false;
+    return toggleSkip(p, date);
   }
 
   /* ---- payments, note search, forecast ---- */
@@ -304,6 +343,11 @@
       if (!p) { var c = JSON.parse(JSON.stringify(q)); byId[c.id] = c; out.push(c); added++; return; }
       var have = {}; p.stamps.forEach(function (s) { have[s.id] = 1; }); var n = 0;
       q.stamps.forEach(function (s) { if (!have[s.id]) { p.stamps.push(JSON.parse(JSON.stringify(s))); have[s.id] = 1; n++; } });
+      /* planned lessons added on the other device are kept too (a date is never duplicated) */
+      /* (named newDates, not added: a var of that name here would shadow the outer count and report 0 new packs) */
+      var mine = plannedDates(p), newDates = [];
+      plannedDates(q).forEach(function (d) { if (mine.indexOf(d) === -1 && newDates.indexOf(d) === -1 && DATE_RE.test(String(d))) newDates.push(d); });
+      if (newDates.length) { p.planned = mine.concat(newDates).sort(); n += newDates.length; }
       if (n) { p.stamps.sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : 0; }); merged++; }
     });
     return { packs: out, added: added, merged: merged };
@@ -488,7 +532,79 @@
   /* true when the stamp with this id was the one that used up the pack */
   function justCompleted(p, id) { return remaining(p) === 0 && p.stamps.length > 0 && counted(p).slice(-1)[0].id === id; }
 
+  /* progress for a pack's ring: lessons used (counted) out of the pack size */
+  function progress(p) {
+    var used = counted(p).length, total = p.total > 0 ? Math.round(p.total) : 0;
+    return { used: used, total: total, pct: total ? Math.min(1, used / total) : 0 };
+  }
+  /* packs of one student (name ignores case and spaces), in list order, with lessons left across the open ones */
+  function groupByStudent(packs, today) {
+    var map = {}, order = [];
+    packs.forEach(function (p) {
+      var k = p.student.trim().toLowerCase();
+      if (!map[k]) { map[k] = { student: p.student.trim(), packs: [], left: 0 }; order.push(k); }
+      map[k].packs.push(p);
+      if (status(p, today) !== 'expired') map[k].left += remaining(p);
+    });
+    return order.map(function (k) { return map[k]; });
+  }
+  /* every lesson in the log as CSV: one row per stamp, with its pack's start and currency */
+  function logCsv(packs) {
+    var byId = {}, rows = [['student', 'date', 'kind', 'make_up', 'note', 'pack_start', 'currency']];
+    packs.forEach(function (p) { byId[p.id] = p; });
+    events(packs).forEach(function (e) {
+      var p = byId[e.packId] || {};
+      rows.push([e.student, e.date, e.kind || 'lesson', e.mk ? 'yes' : '', e.note, p.start || '', p.currency || '']);
+    });
+    return rows.map(function (r) { return r.map(csvCell).join(','); }).join('\n');
+  }
+
+  /* packs-tab filter: all | attn (needs attention) | unpaid | ended (complete or expired) */
+  var FILTERS = ['all', 'attn', 'unpaid', 'ended'];
+  function matchesFilter(p, f, today) {
+    if (f === 'attn') return attention([p], today).length > 0;
+    if (f === 'unpaid') return p.paid === false;
+    if (f === 'ended') { var st = status(p, today); return st === 'done' || st === 'expired'; }
+    return true;
+  }
+  /* packs from a backup file: keep only records the app can use, and only stamps with a usable id and date,
+     so one bad row cannot break the stats or the calendar. Applied on import; saved data is not touched. */
+  var DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+  function cleanPacks(list) {
+    if (!Array.isArray(list)) return [];
+    return list.filter(function (p) { return p && typeof p.id === 'string' && p.id && typeof p.student === 'string' && p.total > 0 && Array.isArray(p.stamps); })
+      .map(function (p) {
+        /* a price saved as text would be concatenated, not added, in the totals: read it as a number */
+        if (typeof p.price === 'string') p.price = Number(p.price) || 0;
+        p.stamps = p.stamps.filter(function (s) { return s && typeof s.id === 'string' && DATE_RE.test(String(s.date || '')); });
+        if (p.planned !== undefined) {
+          var pl = Array.isArray(p.planned) ? p.planned.filter(function (d, i, a) { return DATE_RE.test(String(d)) && a.indexOf(d) === i; }).sort() : [];
+          if (pl.length) p.planned = pl; else delete p.planned;
+        }
+        return p;
+      });
+  }
+
+  /* a whole backup (or saved state) made safe to use: bad packs, closures and waitlist rows are dropped, not trusted */
+  function cleanBackup(o) {
+    o.packs = cleanPacks(o.packs);
+    o.closures = Array.isArray(o.closures) ? o.closures.filter(function (d) { return DATE_RE.test(String(d)); }) : [];
+    o.waitlist = Array.isArray(o.waitlist) ? o.waitlist.filter(function (w) { return w && typeof w.name === 'string' && w.name.trim(); }) : [];
+    return o;
+  }
+  /* a new pack for the same student and terms: no lessons, starts on `today`, keeps weekly days and ink */
+  function clonePack(p, today, id) {
+    var m = monthsOf(p), c = { id: id, student: p.student, total: p.total, price: p.price, currency: p.currency || 'USD', start: today,
+      months: m, expires: m > 0 ? addMonths(today, m) : '', stamps: [], paid: true };
+    if (p.schedule && Array.isArray(p.schedule.days) && p.schedule.days.length) c.schedule = { days: p.schedule.days.slice(), time: p.schedule.time || '' };
+    if (inkOf(p)) c.ink = inkOf(p);
+    return c;
+  }
+
   var API = {
+    plannedProblem: plannedProblem, cleanBackup: cleanBackup, clonePack: clonePack,
+    FILTERS: FILTERS, matchesFilter: matchesFilter, cleanPacks: cleanPacks, plannedDates: plannedDates, addPlanned: addPlanned, removePlanned: removePlanned,
+    skipPlanned: skipPlanned, progress: progress, groupByStudent: groupByStudent, logCsv: logCsv,
     INK_COUNT: INK_COUNT, setClosures: setClosures, inkOf: inkOf, setInk: setInk, weekPlan: weekPlan, justCompleted: justCompleted,
     todayStr: todayStr, parse: parse, daysBetween: daysBetween, addDays: addDays, addMonths: addMonths,
     counted: counted, used: used, setNote: setNote, monthsOf: monthsOf, renew: renew, extend: extend, attention: attention, matches: matches, remaining: remaining, perLesson: perLesson, unearned: unearned, status: status, daysLeft: daysLeft,

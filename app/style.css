@@ -1,8 +1,8 @@
-:root{--i1:#2b6cb0;--i2:#2f6b4f;--i3:#7a4aa0;--i4:#b7791f;--i5:#1c2a44;--paper:#f3ead6;--card:#fbf6e8;--ink:#1c2a44;--mute:#6b6a62;--line:#d9cdb0;--stamp:#b8402c;--ok:#2f6b4f;--warn:#a8741a;
+:root{--i1:#2b6cb0;--i2:#2f6b4f;--i3:#7a4aa0;--i4:#b7791f;--i5:#1c2a44;--paper:#f3ead6;--card:#fbf6e8;--ink:#1c2a44;--mute:#6b6a62;--line:#d9cdb0;--stamp:#b8402c;--ok:#2f6b4f;--warn:#8a5e12;--edge:#8a8270;
 --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Noto Serif KR","Noto Serif JP","Noto Serif SC","Hiragino Mincho ProN","Songti SC",Georgia,serif;
 --sans:system-ui,-apple-system,"Segoe UI","Noto Sans KR","Hiragino Sans","PingFang SC",sans-serif}
-@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--paper:#16130f;--card:#1f1b15;--ink:#efe6d0;--mute:#a39b86;--line:#3a3328;--stamp:#e0674f;--ok:#6fbf94;--warn:#e0b05a;--i1:#63a4e8;--i2:#6fbf94;--i3:#b98ae0;--i4:#e0b05a;--i5:#efe6d0}}
-:root[data-theme=dark]{--paper:#16130f;--card:#1f1b15;--ink:#efe6d0;--mute:#a39b86;--line:#3a3328;--stamp:#e0674f;--ok:#6fbf94;--warn:#e0b05a;--i1:#63a4e8;--i2:#6fbf94;--i3:#b98ae0;--i4:#e0b05a;--i5:#efe6d0}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--paper:#16130f;--card:#1f1b15;--ink:#efe6d0;--mute:#a39b86;--line:#3a3328;--stamp:#e0674f;--ok:#6fbf94;--warn:#e0b05a;--edge:#8d8570;--i1:#63a4e8;--i2:#6fbf94;--i3:#b98ae0;--i4:#e0b05a;--i5:#efe6d0}}
+:root[data-theme=dark]{--paper:#16130f;--card:#1f1b15;--ink:#efe6d0;--mute:#a39b86;--line:#3a3328;--stamp:#e0674f;--ok:#6fbf94;--warn:#e0b05a;--edge:#8d8570;--i1:#63a4e8;--i2:#6fbf94;--i3:#b98ae0;--i4:#e0b05a;--i5:#efe6d0}
 *{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.5 var(--sans);min-height:100vh;
 background-image:radial-gradient(var(--line) 1px,transparent 1px);background-size:22px 22px}
@@ -10,15 +10,15 @@ background-image:radial-gradient(var(--line) 1px,transparent 1px);background-siz
 header{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:8px 0 14px}
 h1{font:700 26px var(--serif);margin:0;letter-spacing:-.01em;flex:1}h1 small{display:block;font:400 13px var(--sans);color:var(--mute);letter-spacing:0;margin-top:2px}
 select,input,button{font:inherit;color:inherit}
-select,input{background:var(--card);border:1.5px solid var(--line);border-radius:8px;padding:9px 10px;min-height:44px;width:100%}
+select,input{background:var(--card);border:1.5px solid var(--edge);border-radius:8px;padding:9px 10px;min-height:44px;width:100%}
 select{width:auto}
 input:focus,select:focus,button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 button{cursor:pointer;min-height:44px;padding:0 16px;border-radius:8px;border:1.5px solid var(--ink);background:transparent;font-weight:600}
-button.pri{background:var(--ink);color:var(--paper)}button.ghost{border-color:var(--line);font-weight:500}
-button.stampbtn{background:var(--stamp);border-color:var(--stamp);color:#fff}
+button.pri{background:var(--ink);color:var(--paper)}button.ghost{border-color:var(--edge);font-weight:500}
+button.stampbtn{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
 .sum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:4px 0 16px}
 .sum div{background:var(--card);border:1.5px solid var(--line);border-radius:10px;padding:10px 12px}
-.sum b{display:block;font:700 22px var(--serif);font-variant-numeric:tabular-nums}.sum span{font-size:12px;color:var(--mute)}
+.sum b{display:block;font:700 22px var(--serif);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}.sum span{font-size:12px;color:var(--mute)}
 .card{background:var(--card);border:1.5px solid var(--ink);border-radius:12px;padding:16px;margin:0 0 16px;position:relative;box-shadow:3px 3px 0 var(--line)}
 .card.done{opacity:.7;border-color:var(--line)}
 .top{display:flex;justify-content:space-between;gap:8px;align-items:baseline;flex-wrap:wrap}
@@ -27,7 +27,7 @@ button.stampbtn{background:var(--stamp);border-color:var(--stamp);color:#fff}
 .c-active{color:var(--ok)}.c-low{color:var(--warn)}.c-done{color:var(--mute)}.c-expired{color:var(--stamp)}
 .meta{color:var(--mute);font-size:14px;margin:2px 0 12px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(54px,1fr));gap:8px;margin-bottom:14px}
-.slot{aspect-ratio:1;border-radius:50%;border:2px dashed var(--line);background:transparent;padding:0;min-height:0;display:grid;place-items:center;font:600 11px var(--sans);color:var(--mute);position:relative}
+.slot{aspect-ratio:1;border-radius:50%;border:2px dashed var(--edge);background:transparent;padding:0;min-height:0;display:grid;place-items:center;font:600 11px var(--sans);color:var(--mute);position:relative}
 .slot.on{border:2.5px solid var(--stamp);color:var(--stamp);border-style:solid;font-family:var(--serif);font-weight:700;transform:rotate(var(--r,-6deg));background:transparent}
 .slot.on::after{content:"";position:absolute;inset:3px;border:1px solid var(--stamp);border-radius:50%;opacity:.55}
 .slot.next{border-color:var(--ink);color:var(--ink)}
@@ -62,13 +62,14 @@ button.sm{min-height:32px;padding:0 10px;font-size:12px}
 .btnlink{display:inline-flex;align-items:center;min-height:44px;padding:0 16px;border-radius:8px;background:var(--ink);color:var(--paper);font-weight:700;text-decoration:none}
 input[type=search]{-webkit-appearance:none}
 .slot:focus-visible{outline-offset:3px}
+summary:focus-visible,a:focus-visible,.btnlink:focus-visible{outline:2px solid var(--ink);outline-offset:2px;border-radius:4px}
 
-.tabs{display:flex;gap:6px;margin:0 0 16px}.tabs button{flex:1}
+.tabs{display:flex;gap:6px;margin:0 0 16px}.tabs button{flex:1 1 0;min-width:0;padding:0 6px;font-size:15px}
 .calhead{display:flex;align-items:center;gap:6px;margin-bottom:8px}.calhead b{flex:1;text-align:center;font:700 18px var(--serif)}
 .calhead button{padding:0 12px}
 .calgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
 .dow{text-align:center;font-size:12px;color:var(--mute);padding:4px 0}
-.day{aspect-ratio:1;min-height:44px;padding:2px;border:1.5px solid var(--line);border-radius:8px;background:var(--card);display:flex;flex-direction:column;align-items:center;justify-content:space-between;font-weight:600;font-size:14px;position:relative}
+.day{aspect-ratio:1;min-height:44px;padding:2px;border:1.5px solid var(--edge);border-radius:8px;background:var(--card);display:flex;flex-direction:column;align-items:center;justify-content:space-between;font-weight:600;font-size:14px;position:relative}
 .day.blank{border:0;background:transparent;pointer-events:none}.day.today{border-color:var(--ink)}.day.sel{background:var(--ink);color:var(--paper)}
 .day.has{border-color:var(--stamp)}
 .dots{display:flex;gap:2px;font-style:normal;margin-bottom:3px}.day em{position:absolute;top:1px;right:3px;font-size:10px;font-style:normal;color:var(--mute)}
@@ -107,3 +108,27 @@ u.k-plan{background:transparent;border:1.5px solid var(--ink)}.dots u.k-plan{wid
 @media(prefers-reduced-motion:no-preference){.slot.fresh{animation:press .34s cubic-bezier(.2,.8,.3,1)}@keyframes press{0%{transform:rotate(var(--r,-6deg)) scale(1.9);opacity:0}55%{transform:rotate(var(--r,-6deg)) scale(.92);opacity:1}100%{transform:rotate(var(--r,-6deg)) scale(1)}}}
 .weekbox summary{cursor:pointer;font:700 16px var(--serif);min-height:32px}.wkday{margin-top:10px}.wkday b{font-size:13px;color:var(--mute)}
 .weekbox{background:var(--card);border:1.5px solid var(--line);border-radius:12px;padding:12px 16px;margin:0 0 16px}
+
+/* round 2: spacing rhythm (4px steps), smooth state changes, progress ring, empty-state art, student groups, planned lessons */
+:root{--s1:4px;--s2:8px;--s3:12px;--s4:16px;--s6:24px;--ease:cubic-bezier(.2,.8,.3,1)}
+button{transition:background-color .15s,color .15s,border-color .15s,transform .12s var(--ease)}
+button:active{transform:scale(.97)}
+input,select{transition:border-color .15s,background-color .15s}
+.card{transition:box-shadow .2s var(--ease)}
+.slot{transition:background-color .2s,border-color .2s,color .2s}
+.ttl{display:flex;align-items:center;gap:var(--s3);min-width:0}
+.ring{flex:0 0 40px;width:40px;height:40px;display:block}
+.ring .trk{stroke:var(--line)}
+.ring .bar{stroke:var(--stamp);transition:stroke-dasharray .5s var(--ease)}
+.art{display:block;margin:0 auto var(--s3);max-width:100%;height:auto}
+.grp{margin:0 0 var(--s6)}
+.grp-h{display:flex;align-items:baseline;justify-content:space-between;gap:var(--s2);flex-wrap:wrap;border-bottom:1.5px solid var(--line);padding-bottom:var(--s2);margin:0 0 var(--s3)}
+.grp-h h3{font:700 18px var(--serif);margin:0;overflow-wrap:anywhere}
+.planned .row{margin-top:var(--s2)}
+.bar:not(.hot) i{background:var(--mute);opacity:.4}
+.sum{gap:var(--s2)}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
+/* a section focused after a stamp is a landing spot, not a control: no ring around the whole card */
+section[tabindex="-1"]:focus{outline:none}
+/* the focus ring must show on dark cards too: it uses the ink token, which is light in dark mode */
+input:focus-visible,select:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
