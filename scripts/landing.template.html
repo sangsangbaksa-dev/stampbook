@@ -12,8 +12,9 @@
 </head>
 <body>
 <div class="wrap">
-<nav><a class="logo" href="{{home}}"><img src="/icon.svg" alt="" width="28" height="28"> <span>{{app}}</span></a>
-<span class="navr"><select id="lang" aria-label="Language">{{options}}</select><a class="btn sm" href="/app/">{{navApp}}</a></span></nav>
+<nav class="site-top" aria-label="{{app}}"><a class="logo" href="{{home}}"><img src="/icon.svg" alt="" width="28" height="28"> <span>{{app}}</span></a>
+<div class="sitelinks"><a href="#how">{{whyH}}</a><a href="#features">{{navFeat}}</a><a href="#price">{{priceH}}</a><a href="#faq">{{faqH}}</a></div>
+<span class="navr"><select id="lang" aria-label="Language">{{options}}</select><a class="btn sm" href="{{checkoutUrl}}" rel="noopener">{{cta}}</a></span></nav>
 <main>
 <section class="hero">
 <div class="hcopy">
@@ -35,10 +36,10 @@
 
 <section class="aud"><p class="audh">{{audH}}</p><ul>{{audList}}</ul></section>
 
-<section><h2>{{whyH}}</h2>
+<section id="how"><h2>{{whyH}}</h2>
 <ol class="steps3"><li><span class="num">1</span><h3>{{s1h}}</h3><p>{{w1}}</p></li><li><span class="num">2</span><h3>{{s2h}}</h3><p>{{w2}}</p></li><li><span class="num">3</span><h3>{{s3h}}</h3><p>{{w3}}</p></li></ol></section>
 
-<section class="feats">
+<section class="feats" id="features">
 <div><svg class="ic" viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9.5 9.5c0-1 1.1-1.7 2.5-1.7s2.5.7 2.5 1.7-1.1 1.5-2.5 1.8-2.5.8-2.5 1.8 1.1 1.7 2.5 1.7 2.5-.7 2.5-1.7"/></svg><h3>{{f1h}}</h3><p>{{f1}}</p></div>
 <div><svg class="ic" viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><h3>{{f2h}}</h3><p>{{f2}}</p></div>
 <div><svg class="ic" viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg><h3>{{f3h}}</h3><p>{{f3}}</p></div>
@@ -47,20 +48,20 @@
 <div><svg class="ic" viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4h9l3 3v13H6z"/><path d="M9 11h6M9 15h6"/></svg><h3>{{g3h}}</h3><p>{{g3}}</p></div>
 </section>
 
-<section class="price"><h2>{{priceH}}</h2>
+<section class="price" id="price"><h2>{{priceH}}</h2>
 <div class="plans">
 <div class="plan pro"><h3>Stampbook</h3><p class="amt">{{proAmt}}</p><ul><li>{{pr1}}</li><li>{{pr2}}</li><li>{{pr3}}</li></ul><a class="btn" href="{{checkoutUrl}}" rel="noopener">{{buy}}</a></div>
 </div>
 <p class="fine">{{priceFine}}</p></section>
 
-<section><h2>{{faqH}}</h2>
+<section id="faq"><h2>{{faqH}}</h2>
 <details><summary>{{q1}}</summary><p>{{a1}}</p></details>
 <details><summary>{{q2}}</summary><p>{{a2}}</p></details>
 <details><summary>{{q3}}</summary><p>{{a3}}</p></details>
 <details><summary>{{q4}}</summary><p>{{a4}}</p></details>
 </section>
 </main>
-<footer><a href="/privacy">{{priv}}</a> · <a href="/terms">{{terms}}</a> · <a href="mailto:{{supportEmail}}">{{supportEmail}}</a> · <span>{{foot}}</span></footer>
+<footer class="site-foot"><div class="foot-in"><div class="foot-brand"><span class="logo"><img src="/icon.svg" alt="" width="24" height="24"> <span>{{app}}</span></span><p>{{foot}}</p></div><div class="foot-meta"><nav aria-label="Legal"><a href="/privacy">{{priv}}</a> · <a href="/terms">{{terms}}</a> · <a href="mailto:{{supportEmail}}">{{supportEmail}}</a></nav><p>&copy; 2026 {{app}}</p></div></div></footer>
 </div>
 <div class="sticky"><a class="btn" href="/app/">{{cta}}</a></div>
 <script src="/landing.js"></script>

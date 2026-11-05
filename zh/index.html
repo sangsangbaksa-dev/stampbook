@@ -17,8 +17,9 @@
 </head>
 <body>
 <div class="wrap">
-<nav><a class="logo" href="/zh/"><img src="/icon.svg" alt="" width="28" height="28"> <span>印章本</span></a>
-<span class="navr"><select id="lang" aria-label="Language"><option value="en" data-href="/">English</option><option value="ko" data-href="/ko/">한국어</option><option value="ja" data-href="/ja/">日本語</option><option value="zh" data-href="/zh/" selected>中文</option><option value="es" data-href="/es/">Español</option></select><a class="btn sm" href="/app/">打开应用</a></span></nav>
+<nav class="site-top" aria-label="印章本"><a class="logo" href="/zh/"><img src="/icon.svg" alt="" width="28" height="28"> <span>印章本</span></a>
+<div class="sitelinks"><a href="#how">怎么用</a><a href="#features">功能</a><a href="#price">一次付清</a><a href="#faq">常见问题</a></div>
+<span class="navr"><select id="lang" aria-label="Language"><option value="en" data-href="/">English</option><option value="ko" data-href="/ko/">한국어</option><option value="ja" data-href="/ja/">日本語</option><option value="zh" data-href="/zh/" selected>中文</option><option value="es" data-href="/es/">Español</option></select><a class="btn sm" href="https://quickbillapp.lemonsqueezy.com/checkout/buy/bb6de2a5-9e61-41f6-b5f6-00296a9302b6" rel="noopener">购买 Stampbook</a></span></nav>
 <main>
 <section class="hero">
 <div class="hcopy">
@@ -40,10 +41,10 @@
 
 <section class="aud"><p class="audh">适合谁</p><ul><li>钢琴与音乐老师</li><li>语言家教</li><li>私人教练</li><li>瑜伽与普拉提</li><li>学习辅导</li><li>美术与手工课</li></ul></section>
 
-<section><h2>怎么用</h2>
+<section id="how"><h2>怎么用</h2>
 <ol class="steps3"><li><span class="num">1</span><h3>添加</h3><p>登记学员的课时包:几节课、付了多少、有效期多久。</p></li><li><span class="num">2</span><h3>盖章</h3><p>每上完一节,点下一个圆圈,日期就盖在章上。</p></li><li><span class="num">3</span><h3>续费</h3><p>只剩一节时,复制现成的续费提醒发给学员。还能发一个学员自己能打开的余额链接。</p></li></ol></section>
 
-<section class="feats">
+<section class="feats" id="features">
 <div><svg class="ic" viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9.5 9.5c0-1 1.1-1.7 2.5-1.7s2.5.7 2.5 1.7-1.1 1.5-2.5 1.8-2.5.8-2.5 1.8 1.1 1.7 2.5 1.7 2.5-.7 2.5-1.7"/></svg><h3>看得见还没上的钱</h3><p>已收到但尚未上完的部分一目了然。过期的课时包单独列出,怎么处理由你决定。</p></div>
 <div><svg class="ic" viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><h3>数据属于你</h3><p>不用注册也能用。想备份就导出成文件，或启用可选的云备份。</p></div>
 <div><svg class="ic" viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg><h3>用你的语言</h3><p>English、한국어、日本語、中文、Español,一键切换。</p></div>
@@ -52,20 +53,20 @@
 <div><svg class="ic" viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 4h9l3 3v13H6z"/><path d="M9 11h6M9 15h6"/></svg><h3>每节课的备注</h3><p>讲了什么、下次做什么,写在日期旁边。</p></div>
 </section>
 
-<section class="price"><h2>一次付清</h2>
+<section class="price" id="price"><h2>一次付清</h2>
 <div class="plans">
 <div class="plan pro"><h3>Stampbook</h3><p class="amt">$19 一次</p><ul><li>课时包不限数量</li><li>学员余额链接</li><li>导出 CSV</li></ul><a class="btn" href="https://quickbillapp.lemonsqueezy.com/checkout/buy/bb6de2a5-9e61-41f6-b5f6-00296a9302b6" rel="noopener">Buy Stampbook</a></div>
 </div>
 <p class="fine">通过销售方（merchant of record）Lemon Squeezy 一次性付款。结账时可能加收当地税费。14 天内可无理由退款。</p></section>
 
-<section><h2>常见问题</h2>
+<section id="faq"><h2>常见问题</h2>
 <details><summary>清除浏览器数据会怎样?</summary><p>盖章记录也会一起消失。请时常备份,需要时从文件恢复。添加到主屏幕也一样。</p></details>
 <details><summary>余额链接会显示其他学员吗?</summary><p>不会。链接里只有这一位学员的名字、上课日期和节数,直接编码在网址中。拿到链接的人都能看到,请只发给本人。</p></details>
 <details><summary>它能收款或自动提醒吗?</summary><p>不能。它只负责记录已收的钱和课时,不会替你发送任何东西。</p></details>
 <details><summary>手机上能用吗?</summary><p>能。用手机浏览器打开并添加到主屏幕,加载一次后离线也能用。</p></details>
 </section>
 </main>
-<footer><a href="/privacy">隐私</a> · <a href="/terms">服务条款</a> · <a href="mailto:sangsangbaksa@gmail.com">sangsangbaksa@gmail.com</a> · <span>为教课的人而做。</span></footer>
+<footer class="site-foot"><div class="foot-in"><div class="foot-brand"><span class="logo"><img src="/icon.svg" alt="" width="24" height="24"> <span>印章本</span></span><p>为教课的人而做。</p></div><div class="foot-meta"><nav aria-label="Legal"><a href="/privacy">隐私</a> · <a href="/terms">服务条款</a> · <a href="mailto:sangsangbaksa@gmail.com">sangsangbaksa@gmail.com</a></nav><p>&copy; 2026 印章本</p></div></div></footer>
 </div>
 <div class="sticky"><a class="btn" href="/app/">购买 Stampbook</a></div>
 <script src="/landing.js"></script>
