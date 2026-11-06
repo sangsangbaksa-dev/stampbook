@@ -20,10 +20,11 @@
     snapshot: function () { var o = JSON.parse(JSON.stringify(state)); LOCAL_ONLY.forEach(function (k) { delete o[k]; }); return o; },
     isEmpty: function (snap) { return !snap.packs || !snap.packs.length; },
     apply: function (snap) {
-      if (!snap || !Array.isArray(snap.packs)) return;
+      if (!snap || !Array.isArray(snap.packs)) return false;
       var keep = {}; LOCAL_ONLY.forEach(function (k) { keep[k] = state[k]; });
-      try { localStorage.setItem(KEY, JSON.stringify(Object.assign({ teacher: '', lang: '' }, snap, keep))); } catch (e) { return; }
+      try { localStorage.setItem(KEY, JSON.stringify(Object.assign({ teacher: '', lang: '' }, snap, keep))); } catch (e) { return false; }
       location.reload();
+      return true;
     },
     onResult: function (r) { if (r.status === 'pushed') toast(window.CloudI18n.t(lang, 'pushed')); }
   }) : null;
