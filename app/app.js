@@ -2,7 +2,7 @@
   'use strict';
   var C = window.SB, I = window.I18N, CFG = window.SB_SITE;
   var KEY = 'stampbook.v1', root = document.getElementById('root');
-  var state = load(), lang = I.pick(state.lang), query = '', filter = 'all', storageOk = true, view = 'packs', calYm = C.todayStr().slice(0, 7), calDay = '', fresh = '';
+  var state = load(), lang = I.pick(state.lang), query = '', filter = 'all', sortBy = 'attention', storageOk = true, view = 'packs', calYm = C.todayStr().slice(0, 7), calDay = '', fresh = '';
   function applyTheme() { var t = state.theme === 'light' || state.theme === 'dark' ? state.theme : ''; if (t) document.documentElement.setAttribute('data-theme', t); else document.documentElement.removeAttribute('data-theme'); }
   applyTheme();
 
@@ -160,15 +160,19 @@
     var att = C.attention(state.packs, today);
     root.appendChild(h('div', { class: 'row', style: 'margin-bottom:16px' }, [h('button', { class: 'pri', onclick: openNew }, '+ ' + T('newPack')),
       att.length ? h('span', { class: 'chip c-low' }, T('attn', { n: att.length })) : null]));
-    /* search and filter are hidden under 4 packs, so reset them there: a hidden filter must never hide every pack */
-    if (state.packs.length < 4) { query = ''; filter = 'all'; groupBy = 'pack'; }
-    else {
+    /* Keep search available even for a small teaching roster. */
+    if (state.packs.length) {
       var q = h('input', { type: 'search', 'aria-label': T('search'), placeholder: T('search'), value: query, oninput: function (e) { query = e.target.value; renderList(); } });
       var fLabel = { all: 'filterAll', attn: 'filterAttn', unpaid: 'filterUnpaid', ended: 'filterEnded' };
       root.appendChild(h('div', { class: 'row filters', style: 'margin-bottom:12px' }, [h('div', { style: 'flex:1;min-width:160px' }, q),
         C.FILTERS.map(function (f) { return h('button', { class: 'ghost' + (filter === f ? ' on' : ''), 'aria-pressed': String(filter === f), onclick: function () { filter = f; render(); } }, T(fLabel[f])); }),
         h('button', { class: 'ghost' + (groupBy === 'student' ? ' on' : ''), 'aria-pressed': String(groupBy === 'student'), onclick: function () { groupBy = groupBy === 'student' ? 'pack' : 'student'; render(); } }, T(groupBy === 'student' ? 'groupPacks' : 'groupStudent'))]));
     }
+    if (state.packs.length) root.appendChild(h('div', { class: 'list-tools' }, [
+      h('span', { id: 'list-count', class: 'note', role: 'status', 'aria-live': 'polite' }),
+      h('select', { 'aria-label': T('sortPacks'), onchange: function (e) { sortBy = e.target.value; renderList(); } },
+        [['attention','sortAttention'],['student','sortStudent'],['expiry','sortExpiry'],['remaining','sortRemaining']].map(function (x) { return h('option', { value: x[0], selected: sortBy === x[0] ? 'selected' : false }, T(x[1])); })),
+      h('button', { id: 'clear-filters', class: 'ghost sm', hidden: !query && filter === 'all', onclick: function () { query = ''; filter = 'all'; render(); root.querySelector('input[type=search]').focus(); } }, T('clearFilters'))]));
     listBox = h('div', { id: 'list' }); root.appendChild(listBox);
 
     if (!state.packs.length) {
@@ -184,8 +188,21 @@
 
   /* ---------- calendar + insights ---------- */
   function tabs() {
-    return h('div', { class: 'tabs', role: 'tablist' }, [['packs', 'tabPacks'], ['cal', 'tabCal'], ['ins', 'tabInsights']].map(function (t) {
-      return h('button', { class: 'ghost' + (view === t[0] ? ' on' : ''), role: 'tab', 'aria-selected': String(view === t[0]), onclick: function () { view = t[0]; render(); } }, T(t[1]));
+    var items = [['packs', 'tabPacks'], ['cal', 'tabCal'], ['ins', 'tabInsights']];
+    function activate(index) {
+      view = items[index][0]; render();
+      root.querySelector('[data-view="' + view + '"]').focus();
+    }
+    return h('div', { class: 'tabs', role: 'tablist' }, items.map(function (t, index) {
+      return h('button', { class: 'ghost' + (view === t[0] ? ' on' : ''), role: 'tab', 'data-view': t[0], tabindex: view === t[0] ? '0' : '-1', 'aria-selected': String(view === t[0]), onclick: function () { activate(index); }, onkeydown: function (event) {
+        var next = index;
+        if (event.key === 'ArrowRight') next = (index + 1) % items.length;
+        else if (event.key === 'ArrowLeft') next = (index + items.length - 1) % items.length;
+        else if (event.key === 'Home') next = 0;
+        else if (event.key === 'End') next = items.length - 1;
+        else return;
+        event.preventDefault(); activate(next);
+      } }, T(t[1]));
     }));
   }
   function fmt(opts, ds) { try { return new Intl.DateTimeFormat(lang, opts).format(C.parse(ds)); } catch (e) { return ds; } }
@@ -298,10 +315,12 @@
   }
   function renderList() {
     if (!listBox) return;
-    var today = C.todayStr(), order = { low: 0, active: 1, expired: 2, done: 3 };
+    var today = C.todayStr();
     listBox.textContent = '';
-    var shown = state.packs.filter(function (p) { return C.matches(p, query) && C.matchesFilter(p, filter, today); })
-      .sort(function (a, b) { return order[C.status(a, today)] - order[C.status(b, today)]; });
+    var shown = C.sortPacks(state.packs.filter(function (p) { return C.matches(p, query) && C.matchesFilter(p, filter, today); }), sortBy, today);
+    var count = document.getElementById('list-count'), clear = document.getElementById('clear-filters');
+    if (count) count.textContent = T('shownPacks', { n: shown.length, total: state.packs.length });
+    if (clear) clear.hidden = !query && filter === 'all';
     if (groupBy === 'student') {
       C.groupByStudent(shown, today).forEach(function (g) {
         listBox.appendChild(h('section', { class: 'grp', 'aria-label': g.student }, [h('div', { class: 'grp-h' }, [h('h3', {}, g.student), h('span', { class: 'note' }, T('groupSum', { n: g.left, p: g.packs.length })), h('button', { class: 'ghost sm', onclick: function () {

@@ -150,3 +150,8 @@ h1 small{line-height:1.45;max-width:36ch;margin-top:5px}
 dialog{box-shadow:0 24px 70px #0006;border-radius:16px}
 @media(hover:hover){button:not(:disabled):hover{border-color:var(--stamp)}.slot:not(:disabled):hover{background:color-mix(in srgb,var(--stamp) 9%,transparent)}}
 @media(max-width:420px){.wrap{padding-left:14px;padding-right:14px}.card{padding:16px}.tabs button{font-size:14px}}
+
+.list-tools{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:12px 0;margin:8px 0 18px;border-bottom:1px solid var(--line)}
+.list-tools #list-count{margin-right:auto;font-variant-numeric:tabular-nums}
+.filters{padding:12px;background:var(--card);border:1px solid var(--line);border-radius:14px}
+@media(max-width:500px){.list-tools #list-count{flex-basis:100%}.list-tools select{flex:1;min-width:0}.filters input{width:100%;min-width:0}}

@@ -2,6 +2,7 @@
 (function (root) {
   var L = {
     en: {
+      sortPacks: "Sort packs", sortAttention: "Needs attention first", sortStudent: "Student A–Z", sortExpiry: "Expiry date first", sortRemaining: "Fewest lessons left", shownPacks: "{n} of {total} packs", clearFilters: "Clear filters",
       name: 'English', app: 'Stampbook', tag: 'Every lesson stamped. Nobody argues about the count.',
       newPack: 'New pack', student: 'Student', lessons: 'Lessons in pack', price: 'Pack price', currency: 'Currency',
       start: 'Paid on', valid: 'Valid for (months, 0 = no expiry)', save: 'Save', cancel: 'Cancel',
@@ -147,6 +148,7 @@
       ringLabel: '{used} of {total} lessons used', planH: 'Planned lessons', planDate: 'Lesson date', planAdd: 'Add lesson', planAdded: 'Lesson planned for {date}.', planDup: 'That date is already planned.', planNone: 'No extra lessons planned. Weekly days still show up on their own.', groupPacks: 'Show packs', groupStudent: 'Group by student', groupSum: '{n} left in {p} pack(s)', logCsvBtn: 'Lesson log (CSV)', planBad: 'Enter a valid date.', planRange: 'That date is outside the pack dates.', planTaken: 'A lesson is already stamped on that date.', planClosed: 'That day is a class closure.', dupPack: 'Duplicate pack', dupDone: 'New pack for {name} created with the same terms.', endMsgBtn: 'End-of-pack message', endMsg: 'Hi {name}, that was the last lesson in your {total}-lesson pack. Thank you for a great run! Shall we set up the next one?'
     },
     ko: {
+      sortPacks: "수강권 정렬", sortAttention: "확인이 필요한 순", sortStudent: "학생 이름순", sortExpiry: "만료일이 빠른 순", sortRemaining: "남은 수업이 적은 순", shownPacks: "전체 {total}개 중 {n}개", clearFilters: "필터 초기화",
       name: '한국어', app: '스탬프북', tag: '수업마다 도장 꾹. 횟수로 다툴 일 없습니다.',
       newPack: '수강권 추가', student: '수강생', lessons: '수강권 횟수', price: '수강권 금액', currency: '통화',
       start: '결제일', valid: '유효기간(개월, 0이면 무제한)', save: '저장', cancel: '취소',
@@ -292,6 +294,7 @@
       ringLabel: '{total}회 중 {used}회 사용', planH: '예정된 수업', planDate: '수업 날짜', planAdd: '수업 추가', planAdded: '{date} 수업을 예정했어요.', planDup: '그 날짜는 이미 예정돼 있어요.', planNone: '추가로 예정된 수업이 없어요. 주간 요일 수업은 자동으로 표시돼요.', groupPacks: '수강권별로 보기', groupStudent: '수강생별로 묶기', groupSum: '남은 {n}회, 수강권 {p}개', logCsvBtn: '수업 기록(CSV)', planBad: '올바른 날짜를 입력하세요.', planRange: '수강권 기간 밖의 날짜예요.', planTaken: '그 날짜에는 이미 도장이 있어요.', planClosed: '휴강일이에요.', dupPack: '수강권 복제', dupDone: '{name}님의 같은 조건 수강권을 만들었어요.', endMsgBtn: '수강권 종료 안내', endMsg: '{name}님, {total}회 수강권의 마지막 수업이었어요. 함께해 주셔서 감사합니다! 다음 수강권도 준비할까요?'
     },
     ja: {
+      sortPacks: "回数券の並び順", sortAttention: "確認が必要な順", sortStudent: "生徒名順", sortExpiry: "有効期限順", sortRemaining: "残り回数が少ない順", shownPacks: "全{total}件中{n}件", clearFilters: "絞り込みを解除",
       name: '日本語', app: 'スタンプブック', tag: 'レッスンごとに一つ、押す。回数で揉めない。',
       newPack: '回数券を追加', student: '生徒さん', lessons: '回数', price: '回数券の金額', currency: '通貨',
       start: '入金日', valid: '有効期間(か月、0で無期限)', save: '保存', cancel: 'キャンセル',
@@ -437,6 +440,7 @@
       ringLabel: '{total}回中 {used}回消化', planH: '予定のレッスン', planDate: 'レッスン日', planAdd: 'レッスンを追加', planAdded: '{date}のレッスンを予定に入れました。', planDup: 'その日付はすでに予定されています。', planNone: '追加の予定はありません。週間スケジュールの曜日は自動で表示されます。', groupPacks: '回数券ごとに表示', groupStudent: '生徒さんごとにまとめる', groupSum: '残り{n}回、回数券{p}件', logCsvBtn: 'レッスン記録(CSV)', planBad: '正しい日付を入力してください。', planRange: '回数券の期間外の日付です。', planTaken: 'その日はすでに押印されています。', planClosed: 'その日は休講日です。', dupPack: '回数券を複製', dupDone: '{name}さんの同じ条件の回数券を作成しました。', endMsgBtn: '回数券終了のご案内', endMsg: '{name}さん、{total}回券の最後のレッスンでした。ありがとうございました！次の回数券も用意しましょうか?'
     },
     zh: {
+      sortPacks: "课包排序", sortAttention: "需关注优先", sortStudent: "学生姓名", sortExpiry: "到期日优先", sortRemaining: "剩余课时最少", shownPacks: "共 {total} 个，显示 {n} 个", clearFilters: "清除筛选",
       name: '中文', app: '印章本', tag: '上一节,盖一个章。课时数,不再扯皮。',
       newPack: '新增课时包', student: '学员', lessons: '课时数', price: '课时包价格', currency: '币种',
       start: '付款日', valid: '有效期(月,0 为不限)', save: '保存', cancel: '取消',
@@ -582,6 +586,7 @@
       ringLabel: '已上 {used}/{total} 节', planH: '预定课程', planDate: '上课日期', planAdd: '添加课程', planAdded: '已安排 {date} 的课程。', planDup: '该日期已安排。', planNone: '没有额外安排的课程。每周固定的上课日会自动显示。', groupPacks: '按课时包显示', groupStudent: '按学员分组', groupSum: '剩 {n} 节,{p} 个课时包', logCsvBtn: '上课记录(CSV)', planBad: '请输入有效日期。', planRange: '该日期不在课时包有效期内。', planTaken: '该日期已有盖章记录。', planClosed: '该日是停课日。', dupPack: '复制课时包', dupDone: '已为 {name} 创建同样条件的新课时包。', endMsgBtn: '课时包结束提醒', endMsg: '{name} 你好,这是你 {total} 节课时包的最后一节课。感谢一路同行!要不要安排下一个课时包?'
     },
     es: {
+      sortPacks: "Ordenar bonos", sortAttention: "Requieren atención", sortStudent: "Estudiante A–Z", sortExpiry: "Vencimiento próximo", sortRemaining: "Menos clases restantes", shownPacks: "{n} de {total} bonos", clearFilters: "Limpiar filtros",
       name: 'Español', app: 'Sellos', tag: 'Cada clase, un sello. Nadie discute la cuenta.',
       newPack: 'Nuevo bono', student: 'Alumno', lessons: 'Clases del bono', price: 'Precio del bono', currency: 'Moneda',
       start: 'Pagado el', valid: 'Validez (meses, 0 = sin caducidad)', save: 'Guardar', cancel: 'Cancelar',
