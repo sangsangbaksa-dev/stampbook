@@ -145,7 +145,7 @@
   }
   /* one row per student (packs merged by name, case-insensitive), busiest first */
   function studentStats(packs, today) {
-    var map = {}, order = [];
+    var map = Object.create(null), order = [];
     packs.forEach(function (p) {
       var k = p.student.trim().toLowerCase();
       if (!map[k]) { map[k] = { student: p.student.trim(), packs: 0, lessons: 0, noshow: 0, excused: 0, left: 0, spent: 0, dates: [], currency: p.currency || '' }; order.push(k); }
@@ -337,11 +337,11 @@
   /* ---- merge a backup into current data (second device, or restoring without losing newer stamps) ----
      Same pack id: local fields win, stamps are unioned by stamp id. New ids are added. Returns {packs, added, merged}. */
   function mergePacks(local, incoming) {
-    var byId = {}, out = local.map(function (p) { byId[p.id] = p; return p; }), added = 0, merged = 0;
+    var byId = Object.create(null), out = local.map(function (p) { byId[p.id] = p; return p; }), added = 0, merged = 0;
     incoming.forEach(function (q) {
       var p = byId[q.id];
       if (!p) { var c = JSON.parse(JSON.stringify(q)); byId[c.id] = c; out.push(c); added++; return; }
-      var have = {}; p.stamps.forEach(function (s) { have[s.id] = 1; }); var n = 0;
+      var have = Object.create(null); p.stamps.forEach(function (s) { have[s.id] = 1; }); var n = 0;
       q.stamps.forEach(function (s) { if (!have[s.id]) { p.stamps.push(JSON.parse(JSON.stringify(s))); have[s.id] = 1; n++; } });
       /* planned lessons added on the other device are kept too (a date is never duplicated) */
       /* (named newDates, not added: a var of that name here would shadow the outer count and report 0 new packs) */

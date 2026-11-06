@@ -569,3 +569,27 @@ test('student grouping treats prototype property names as ordinary student names
   assert.ok(groups.every(g => g.packs.length === 1 && g.left === 10));
   assert.equal(C.groupByStudent([packs[0], mk({id:'another', student:'__proto__'})], '2026-11-05')[0].packs.length, 2);
 });
+
+
+test('backup merge treats special pack and stamp IDs as literal data', () => {
+  const incoming = ['__proto__', 'constructor', 'toString'].map(id => mk({ id }));
+  const added = C.mergePacks([], incoming);
+  assert.equal(added.added, 3);
+  assert.deepEqual(added.packs.map(p => p.id), ['__proto__', 'constructor', 'toString']);
+  const local = mk({ id: '__proto__', stamps: [] });
+  const remote = mk({ id: '__proto__', stamps: ['__proto__', 'constructor', 'toString'].map(id => ({ id, date: '2026-10-01', note: '' })) });
+  const merged = C.mergePacks([local], [remote]);
+  assert.equal(merged.merged, 1);
+  assert.equal(merged.packs[0].stamps.length, 3);
+  assert.equal(C.mergePacks(merged.packs, [remote]).merged, 0);
+});
+
+
+test('student statistics include special names without touching object prototypes', () => {
+  const before = Object.getOwnPropertyNames(Object.prototype);
+  const packs = ['__proto__', 'constructor', 'toString'].map((student, n) => mk({ id: 'p' + n, student, stamps: [{ id: 's' + n, date: '2026-10-01', note: '' }] }));
+  const rows = C.studentStats(packs, '2026-11-01');
+  assert.equal(rows.length, 3);
+  assert.ok(rows.every(r => r.lessons === 1 && r.spent === 500 && r.left === 9));
+  assert.deepEqual(Object.getOwnPropertyNames(Object.prototype), before);
+});
