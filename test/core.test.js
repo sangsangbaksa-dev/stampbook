@@ -533,3 +533,30 @@ test('cleanPacks keeps good planned dates only', () => {
   assert.deepEqual(C.cleanPacks([mk({ id: 'z', planned: ['2026-11-03', 'nope', '2026-11-03'] })])[0].planned, ['2026-11-03']);
   assert.equal(C.cleanPacks([mk({ id: 'y', planned: 'x' })])[0].planned, undefined);
 });
+
+
+test('pack ordering preserves stored data, leaves open expiry last and sorts natural student names', () => {
+  const packs = [mk({id:'a', student:'Student 10', expires:''}), mk({id:'b',student:'Student 2', expires:'2026-12-01',total:3}), mk({id:'c',student:'Student 2',expires:'2026-11-01',total:8})];
+  const before = JSON.stringify(packs);
+  assert.deepEqual(C.sortPacks(packs, 'expiry', '2026-10-15').map(x=>x.id), ['c','b','a']);
+  assert.deepEqual(C.sortPacks(packs, 'student', '2026-10-15').map(x=>x.id), ['b','c','a']);
+  assert.deepEqual(C.sortPacks(packs, 'remaining', '2026-10-15').map(x=>x.id), ['b','c','a']);
+  assert.equal(JSON.stringify(packs), before);
+});
+
+
+test('name search recognises canonical Korean and accent forms without changing records', () => {
+  const p = mk({student:'한글 Café'.normalize('NFD')});
+  const before = JSON.stringify(p);
+  assert.equal(C.matches(p, '  한글  '), true);
+  assert.equal(C.matches(p, 'Café'), true);
+  assert.equal(C.matches(p, 'Cafe'), false);
+  assert.equal(JSON.stringify(p), before);
+});
+
+test('lesson-note search recognises composed and decomposed text', () => {
+  const p = mk({stamps:[{id:'s1',date:'2026-10-02',note:'한글 Café'.normalize('NFD')}]});
+  assert.equal(C.searchNotes([p], '한글').length, 1);
+  assert.equal(C.searchNotes([p], 'Cafe\u0301').length, 1);
+  assert.equal(C.searchNotes([p], 'Cafe').length, 0);
+});

@@ -74,7 +74,7 @@
       return st === 'low' || st === 'expired' || (st === 'active' && dl !== null && dl <= 7);
     });
   }
-  function matches(p, q) { q = String(q || '').trim().toLowerCase(); return !q || p.student.toLowerCase().indexOf(q) !== -1; }
+  function matches(p, q) { q = String(q || '').normalize('NFC').trim().toLowerCase(); return !q || p.student.normalize('NFC').toLowerCase().indexOf(q) !== -1; }
   function removeStamp(p, id) {
     var n = p.stamps.length;
     p.stamps = p.stamps.filter(function (s) { return s.id !== id; });
@@ -300,9 +300,9 @@
   }
   /* stamps whose note contains q (case-insensitive), newest first. A query under 2 characters matches nothing. */
   function searchNotes(packs, q, limit) {
-    q = String(q || '').trim().toLowerCase();
+    q = String(q || '').normalize('NFC').trim().toLowerCase();
     if (q.length < 2) return [];
-    var hits = events(packs).filter(function (e) { return e.note && e.note.toLowerCase().indexOf(q) !== -1; }).reverse();
+    var hits = events(packs).filter(function (e) { return e.note && e.note.normalize('NFC').toLowerCase().indexOf(q) !== -1; }).reverse();
     return hits.slice(0, limit || 50);
   }
   /* planned lessons in the next n days and the value they represent (per-lesson price) */
@@ -559,6 +559,13 @@
     return rows.map(function (r) { return r.map(csvCell).join(','); }).join('\n');
   }
 
+  function sortPacks(packs, order, today) {
+    var rows = packs.slice(), priority = { low: 0, active: 1, expired: 2, done: 3 };
+    if (order === 'student') return rows.sort(function (a, b) { return a.student.localeCompare(b.student, undefined, { numeric: true, sensitivity: 'base' }); });
+    if (order === 'expiry') return rows.sort(function (a, b) { return (a.expires || '9999-99-99').localeCompare(b.expires || '9999-99-99'); });
+    if (order === 'remaining') return rows.sort(function (a, b) { return remaining(a) - remaining(b); });
+    return rows.sort(function (a, b) { return priority[status(a, today)] - priority[status(b, today)]; });
+  }
   /* packs-tab filter: all | attn (needs attention) | unpaid | ended (complete or expired) */
   var FILTERS = ['all', 'attn', 'unpaid', 'ended'];
   function matchesFilter(p, f, today) {
@@ -603,7 +610,7 @@
 
   var API = {
     plannedProblem: plannedProblem, cleanBackup: cleanBackup, clonePack: clonePack,
-    FILTERS: FILTERS, matchesFilter: matchesFilter, cleanPacks: cleanPacks, plannedDates: plannedDates, addPlanned: addPlanned, removePlanned: removePlanned,
+    sortPacks: sortPacks, FILTERS: FILTERS, matchesFilter: matchesFilter, cleanPacks: cleanPacks, plannedDates: plannedDates, addPlanned: addPlanned, removePlanned: removePlanned,
     skipPlanned: skipPlanned, progress: progress, groupByStudent: groupByStudent, logCsv: logCsv,
     INK_COUNT: INK_COUNT, setClosures: setClosures, inkOf: inkOf, setInk: setInk, weekPlan: weekPlan, justCompleted: justCompleted,
     todayStr: todayStr, parse: parse, daysBetween: daysBetween, addDays: addDays, addMonths: addMonths,
