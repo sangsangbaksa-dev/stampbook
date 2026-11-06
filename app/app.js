@@ -676,7 +676,7 @@
   function settings() {
     var teacher = h('input', { id: 's-t', value: state.teacher || '', maxlength: 80, onchange: function (e) { state.teacher = e.target.value.trim(); save(); } });
     var file = h('input', { type: 'file', accept: 'application/json', style: 'display:none', onchange: function (e) {
-      var fl = e.target.files[0]; if (!fl) return; var r = new FileReader();
+      var fl = e.target.files[0]; e.target.value = ''; if (!fl) return; if (fl.size > 20 * 1024 * 1024 && !confirm(T('fileTooLarge'))) return; var r = new FileReader();
       r.onload = function () {
         try {
           var o = JSON.parse(r.result); if (!o || !Array.isArray(o.packs)) throw 0;
