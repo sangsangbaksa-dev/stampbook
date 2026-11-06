@@ -145,7 +145,7 @@
   }
   /* one row per student (packs merged by name, case-insensitive), busiest first */
   function studentStats(packs, today) {
-    var map = {}, order = [];
+    var map = Object.create(null), order = [];
     packs.forEach(function (p) {
       var k = p.student.trim().toLowerCase();
       if (!map[k]) { map[k] = { student: p.student.trim(), packs: 0, lessons: 0, noshow: 0, excused: 0, left: 0, spent: 0, dates: [], currency: p.currency || '' }; order.push(k); }

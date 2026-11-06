@@ -583,3 +583,13 @@ test('backup merge treats special pack and stamp IDs as literal data', () => {
   assert.equal(merged.packs[0].stamps.length, 3);
   assert.equal(C.mergePacks(merged.packs, [remote]).merged, 0);
 });
+
+
+test('student statistics include special names without touching object prototypes', () => {
+  const before = Object.getOwnPropertyNames(Object.prototype);
+  const packs = ['__proto__', 'constructor', 'toString'].map((student, n) => mk({ id: 'p' + n, student, stamps: [{ id: 's' + n, date: '2026-10-01', note: '' }] }));
+  const rows = C.studentStats(packs, '2026-11-01');
+  assert.equal(rows.length, 3);
+  assert.ok(rows.every(r => r.lessons === 1 && r.spent === 500 && r.left === 9));
+  assert.deepEqual(Object.getOwnPropertyNames(Object.prototype), before);
+});
