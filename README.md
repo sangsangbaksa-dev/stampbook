@@ -1,6 +1,6 @@
 # Stampbook
 
-A stamp card for prepaid lessons (tutors, coaches, instructors). Static site, no server, data in localStorage. 5 languages (en, ko, ja, zh, es). Free: 3 active packs. Pro: unlimited packs, balance links, CSV.
+A stamp card for prepaid lessons (tutors, coaches, instructors). App data is stored in browser localStorage; the optional licence check uses a serverless endpoint and an external licensing service. 5 languages (en, ko, ja, zh, es). Free: 3 active packs. Pro: unlimited packs, balance links, CSV.
 
 ## Features
 
@@ -28,3 +28,5 @@ A stamp card for prepaid lessons (tutors, coaches, instructors). Static site, no
 ## 배포 전 검증
 
 설치·빌드·브라우저 검사·Cloudflare 배포 파일 구성은 [PREDEPLOY.md](PREDEPLOY.md)를 참고하세요. `codex/predeploy-2026-11-06` 브랜치의 검증 워크플로에는 배포 단계가 없습니다.
+
+When an import exceeds 20 MiB, the app asks before reading it because large files can slow the browser. Larger backup files remain importable.
