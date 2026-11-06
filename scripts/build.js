@@ -36,7 +36,7 @@ console.log('built', langs.length, 'landing pages for', base);
 /* --dist: copy only the public files into dist/ (Cloudflare Pages output directory), so scripts, tests and docs are not published. */
 if (process.argv.includes('--dist')) {
   const out = path.join(root, 'dist'); fs.rmSync(out, { recursive: true, force: true });
-  const files = ['index.html', 'privacy.html', 'terms.html', 'landing.css', 'landing.js', 'config.js', 'icon.svg', 'icon-192.png', 'icon-512.png', 'og.png',
+  const files = ['404.html', 'index.html', 'privacy.html', 'terms.html', 'landing.css', 'landing.js', 'config.js', 'icon.svg', 'icon-192.png', 'icon-512.png', 'og.png',
     'manifest.webmanifest', 'sitemap.xml', 'robots.txt', '_headers', '_redirects'];
   const dirs = ['app', 'ko', 'ja', 'zh', 'es'];
   const cp = (rel) => { const from = path.join(root, rel), to = path.join(out, rel); fs.mkdirSync(path.dirname(to), { recursive: true }); fs.cpSync(from, to, { recursive: true }); };

@@ -24,3 +24,7 @@ A stamp card for prepaid lessons (tutors, coaches, instructors). Static site, no
 - Hosting: Cloudflare Pages (`docs/cloudflare-pages.md`; `functions/api/license.js`, `_headers`, `_redirects`, build `node scripts/build.js --dist`). Vercel config (`vercel.json`, `api/license.js`) is kept for the existing deployment. Shared logic: `lib/license-core.js`.
 - `api/license.js`: Lemon Squeezy licence-key check, enabled by env vars `LEMONSQUEEZY_PRODUCT_ID (optional)` (see `docs/license-server.md`).
 - Old note, still true until those env vars are set: placeholders to replace before charging: `config.js` (`checkoutUrl`, `supportEmail`), the Pro link in `index.html`, contact in `privacy.html`. The offline licence check in `app/core.js` is a placeholder scheme (anyone can mint keys) and must be replaced with vendor-issued keys.
+
+## 배포 전 검증
+
+설치·빌드·브라우저 검사·Cloudflare 배포 파일 구성은 [PREDEPLOY.md](PREDEPLOY.md)를 참고하세요. `codex/predeploy-2026-11-06` 브랜치의 검증 워크플로에는 배포 단계가 없습니다.

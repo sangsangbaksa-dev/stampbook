@@ -23,9 +23,9 @@ const srv = http.createServer((q, r) => {
   await pg.locator('.settings button', { hasText: '.ics' }).click(); await pg.waitForSelector('.toast');
   assert.ok((await pg.locator('.toast').textContent()).includes('weekly schedule'));
   // set schedule for today's weekday
-  await pg.locator('.sched summary').click();
+  await pg.locator('.sched').filter({ has: pg.locator('input[type=time]') }).locator('summary').click();
   await pg.locator(`.sched .row button[aria-pressed]`).nth((dow - 0 + 7) % 7).click(); // weekStart is Sunday for en
-  await pg.fill('.sched input[type=time]', '18:30'); await pg.click('.sched .pri'); await pg.waitForSelector('.todaybox');
+  await pg.fill('.sched input[type=time]', '18:30'); await pg.locator('.sched').filter({ has: pg.locator('input[type=time]') }).locator('.pri').click(); await pg.waitForSelector('.todaybox');
   assert.ok((await pg.locator('.todaybox').textContent()).includes('18:30'));
   assert.deepEqual(await pg.evaluate(() => JSON.parse(localStorage['stampbook.v1']).packs[0].schedule), { days: [dow], time: '18:30' });
   await pg.screenshot({ path: out + '/schedule-en.png', fullPage: true });
