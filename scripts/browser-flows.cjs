@@ -24,5 +24,14 @@ module.exports = async (page, base) => {
   assert.equal(await page.locator('[data-view=cal]').evaluate(e=>e===document.activeElement),true);
   await page.keyboard.press('Home');
   assert.equal(await page.locator('[data-view=packs]').getAttribute('aria-selected'),'true');
+  await page.addInitScript(() => {
+    const data = JSON.parse(localStorage.getItem('stampbook.v1'));
+    data.packs = ['__proto__','constructor','toString'].map((student,i) => ({...data.packs[0], id:'special-'+i, student}));
+    localStorage.setItem('stampbook.v1', JSON.stringify(data));
+  });
+  await page.reload();
+  await page.getByRole('button', {name:'Group by student', exact:true}).click();
+  assert.equal(await page.locator('#list .grp').count(),3,'Special student names render as ordinary groups');
+  for (const name of ['__proto__','constructor','toString']) assert.ok((await page.textContent('#list')).includes(name));
   await page.screenshot({path:require('node:path').join(__dirname,'../artifacts/browser/functional-workspace.png'),fullPage:true});
 };
