@@ -539,7 +539,7 @@
   }
   /* packs of one student (name ignores case and spaces), in list order, with lessons left across the open ones */
   function groupByStudent(packs, today) {
-    var map = {}, order = [];
+    var map = Object.create(null), order = [];
     packs.forEach(function (p) {
       var k = p.student.trim().toLowerCase();
       if (!map[k]) { map[k] = { student: p.student.trim(), packs: [], left: 0 }; order.push(k); }

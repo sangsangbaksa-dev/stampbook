@@ -560,3 +560,12 @@ test('lesson-note search recognises composed and decomposed text', () => {
   assert.equal(C.searchNotes([p], 'Cafe\u0301').length, 1);
   assert.equal(C.searchNotes([p], 'Cafe').length, 0);
 });
+
+
+test('student grouping treats prototype property names as ordinary student names', () => {
+  const packs = ['__proto__', 'constructor', 'toString'].map((student, i) => mk({id: String(i), student}));
+  const groups = C.groupByStudent(packs, '2026-11-05');
+  assert.deepEqual(groups.map(g => g.student), ['__proto__', 'constructor', 'toString']);
+  assert.ok(groups.every(g => g.packs.length === 1 && g.left === 10));
+  assert.equal(C.groupByStudent([packs[0], mk({id:'another', student:'__proto__'})], '2026-11-05')[0].packs.length, 2);
+});
