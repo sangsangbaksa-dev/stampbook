@@ -149,7 +149,8 @@ h1 small{line-height:1.45;max-width:36ch;margin-top:5px}
 .empty{background:var(--card);padding:42px 20px;border-radius:16px}
 dialog{box-shadow:0 24px 70px #0006;border-radius:16px}
 @media(hover:hover){button:not(:disabled):hover{border-color:var(--stamp)}.slot:not(:disabled):hover{background:color-mix(in srgb,var(--stamp) 9%,transparent)}}
-@media(max-width:420px){.wrap{padding-left:14px;padding-right:14px}.card{padding:16px}.tabs button{font-size:14px}}
+@media(max-width:420px){.wrap{padding-left:14px;padding-right:14px}.card{padding:16px}.tabs button{font-size:14px}
+header{align-items:flex-start}header h1{flex:1 1 160px;min-width:0}header h1 small{overflow-wrap:anywhere}header select{max-width:100%}}
 
 .list-tools{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:12px 14px;margin:10px 0 20px;border:1px solid var(--line);border-radius:14px;background:var(--card)}
 .list-tools select,.list-tools button{min-height:42px}

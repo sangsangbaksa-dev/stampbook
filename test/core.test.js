@@ -412,7 +412,7 @@ test('packs filter: attention, unpaid and ended are separate; all matches everyt
   const today = '2026-11-05';
   const ok = mk({ id: 'ok' }), unpaid = mk({ id: 'u', paid: false }), done = mk({ id: 'd', total: 1 }), old = mk({ id: 'x', expires: '2026-01-01' });
   stamp(done, '2026-11-01');
-  assert.deepEqual(C.FILTERS, ['all', 'attn', 'unpaid', 'ended']);
+  assert.deepEqual(C.FILTERS, ['all', 'attn', 'unpaid', 'ended', 'low']);
   const pick = (f) => [ok, unpaid, done, old].filter(p => C.matchesFilter(p, f, today)).map(p => p.id);
   assert.deepEqual(pick('all'), ['ok', 'u', 'd', 'x']);
   assert.deepEqual(pick('unpaid'), ['u']);

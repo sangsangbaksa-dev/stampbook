@@ -128,7 +128,7 @@
     if (!curs.length) curs = ['USD'];
     function perCur(fn) { return curs.map(function (c) { return money(fn(state.packs.filter(function (p) { return (p.currency || 'USD') === c; })), c); }).join(' + '); }
     var dueN = dueForRenewal(today).length;
-    if (dueN) root.appendChild(h('div', { class: 'row', style: 'margin:0 0 10px' }, [h('button', { class: 'pri', onclick: renewAllDue }, T('renewAll', { n: dueN }))]));
+    if (dueN) root.appendChild(h('div', { class: 'row', style: 'margin:0 0 10px' }, [h('button', { class: 'pri', onclick: renewAllDue }, T('renewAll', { n: dueN })), h('button', { class: 'ghost', onclick: copyRenewalNotes }, T('renewCopyAll', { n: dueN }))]));
     root.appendChild(h('div', { class: 'sum' }, [
       h('div', {}, [h('b', {}, String(ms.lessons)), h('span', {}, T('thisMonth') + ' · ' + T('given'))]),
       h('div', {}, [h('b', {}, perCur(function (ps) { return C.monthStats(ps, ym).earned; })), h('span', {}, T('earned'))]),
@@ -149,7 +149,7 @@
     if (C.backupDue(state.packs, state.lastBackup, Date.now())) root.appendChild(h('div', { class: 'warnbar', role: 'status' }, [T('backupNudge') + ' ', h('button', { class: 'ghost sm', onclick: doBackup }, T('backupNow'))]));
     root.appendChild(waitlistCard());
     var plan = C.agenda(state.packs, today, 1);
-    if (plan.length) root.appendChild(h('div', { class: 'card todaybox' }, [h('h3', {}, T('todayH')), h('ul', { class: 'evs' }, plan.map(function (e) {
+    if (plan.length) root.appendChild(h('div', { class: 'card todaybox' }, [h('div', { class: 'grp-h' }, [h('h3', {}, T('todayH')), h('button', { class: 'stampbtn sm', onclick: function () { applyGroupStamp(plan.map(function (e) { return state.packs.filter(function (x) { return x.id === e.packId; })[0]; }).filter(Boolean), today); } }, T('stampGroup'))]), h('ul', { class: 'evs' }, plan.map(function (e) {
       var p = state.packs.filter(function (x) { return x.id === e.packId; })[0];
       return h('li', {}, [e.time ? h('span', { class: 'ld' }, e.time) : null, h('b', {}, e.student), h('span', { class: 'ln' }, T('left', { n: C.remaining(p) })),
         h('button', { class: 'ghost sm', onclick: function () { C.skipPlanned(p, today); save(); render(); } }, e.planned ? T('wlRemove') : T('skip')),
@@ -164,7 +164,7 @@
     /* Keep search available even for a small teaching roster. */
     if (state.packs.length) {
       var q = h('input', { type: 'search', 'aria-label': T('search'), placeholder: T('search'), value: query, oninput: function (e) { query = e.target.value; renderList(); } });
-      var fLabel = { all: 'filterAll', attn: 'filterAttn', unpaid: 'filterUnpaid', ended: 'filterEnded' };
+      var fLabel = { all: 'filterAll', attn: 'filterAttn', unpaid: 'filterUnpaid', ended: 'filterEnded', low: 'filterLow' };
       root.appendChild(h('div', { class: 'row filters', style: 'margin-bottom:12px' }, [h('div', { style: 'flex:1;min-width:160px' }, q),
         C.FILTERS.map(function (f) { return h('button', { class: 'ghost' + (filter === f ? ' on' : ''), 'aria-pressed': String(filter === f), onclick: function () { filter = f; render(); } }, T(fLabel[f])); }),
         h('button', { class: 'ghost' + (groupBy === 'student' ? ' on' : ''), 'aria-pressed': String(groupBy === 'student'), onclick: function () { groupBy = groupBy === 'student' ? 'pack' : 'student'; render(); } }, T(groupBy === 'student' ? 'groupPacks' : 'groupStudent'))]));
@@ -173,7 +173,8 @@
       h('span', { id: 'list-count', class: 'note', role: 'status', 'aria-live': 'polite' }),
       h('select', { 'aria-label': T('sortPacks'), onchange: function (e) { sortBy = e.target.value; renderList(); } },
         [['attention','sortAttention'],['student','sortStudent'],['expiry','sortExpiry'],['remaining','sortRemaining']].map(function (x) { return h('option', { value: x[0], selected: sortBy === x[0] ? 'selected' : false }, T(x[1])); })),
-      h('button', { id: 'clear-filters', class: 'ghost sm', hidden: !query && filter === 'all', onclick: function () { query = ''; filter = 'all'; render(); root.querySelector('input[type=search]').focus(); } }, T('clearFilters'))]));
+      h('button', { id: 'clear-filters', class: 'ghost sm', hidden: !query && filter === 'all', onclick: function () { query = ''; filter = 'all'; render(); root.querySelector('input[type=search]').focus(); } }, T('clearFilters')),
+      C.lastStamp(state.packs) ? h('button', { id: 'undo-last', class: 'ghost sm', onclick: undoLastStamp }, T('undoLast')) : null]));
     listBox = h('div', { id: 'list' }); root.appendChild(listBox);
 
     if (!state.packs.length) {
@@ -324,7 +325,7 @@
     if (clear) clear.hidden = !query && filter === 'all';
     if (groupBy === 'student') {
       C.groupByStudent(shown, today).forEach(function (g) {
-        listBox.appendChild(h('section', { class: 'grp', 'aria-label': g.student }, [h('div', { class: 'grp-h' }, [h('h3', {}, g.student), h('span', { class: 'note' }, T('groupSum', { n: g.left, p: g.packs.length })), h('button', { class: 'ghost sm', onclick: function () {
+        listBox.appendChild(h('section', { class: 'grp', 'aria-label': g.student }, [h('div', { class: 'grp-h' }, [h('h3', {}, g.student), h('span', { class: 'note' }, T('groupSum', { n: g.left, p: g.packs.length })), h('button', { class: 'stampbtn sm', onclick: function () { applyGroupStamp(g.packs, today); } }, T('stampGroup')), h('button', { class: 'ghost sm', onclick: function () { printText(statementText(g.student)); } }, T('statementBtn')), h('button', { class: 'ghost sm', onclick: function () {
           if (!state.pro) return needPro();
           var key = g.student.trim().toLowerCase();
           download('stampbook-student-log.csv', C.logCsv(state.packs.filter(function (x) { return x.student.trim().toLowerCase() === key; })), 'text/csv');
@@ -427,6 +428,7 @@
     foot.push(h('button', { class: 'ghost', onclick: function () { C.setPaid(p, p.paid === false); save(); render(); } }, T(p.paid === false ? 'markPaid' : 'markUnpaid')));
     foot.push(h('button', { class: 'ghost', onclick: function () { editPack(p); } }, T('editPack')));
     foot.push(h('button', { class: 'ghost', onclick: function () { copy(reportText(p, today.slice(0, 7)), T('reportCopied')); } }, T('reportBtn')));
+    foot.push(h('button', { class: 'ghost', onclick: function () { printText(statementText(p.student)); } }, T('statementBtn')));
     foot.push(h('button', { class: 'ghost', onclick: function () { printText(activityText(p.student)); } }, T('pdfBtn')));
     if (st === 'low' || st === 'expired' || soon) foot.push(h('button', { class: 'ghost', onclick: function () { copy(T(p.expires ? 'remindExp' : 'remind', { name: p.student, n: rem, date: p.expires }), T('remindCopied')); } }, T('remindBtn')));
     foot.push(h('button', { class: 'ghost', onclick: function () { var v = prompt(T('nextPh', { max: C.NEXT_MAX }), p.next || ''); if (v !== null) { var tooLong = v.trim().length > C.NEXT_MAX; C.setNext(p, v); save(); render(); toast(tooLong ? T('nextCut', { max: C.NEXT_MAX }) : T('nextSaved')); } } }, T('nextBtn') + (p.next ? ' ✓' : '')));
@@ -572,8 +574,56 @@
       h('ul', { class: 'evs' }, list.map(function (x) { return h('li', {}, [h('b', {}, x), h('button', { class: 'ghost sm', onclick: function () { state.closures = list.filter(function (y) { return y !== x; }); save(); render(); } }, T('wlRemove'))]); }))]);
   }
   /* bulk: packs that need renewal and have no successor yet (a renewal records renewsFrom, so pressing twice never doubles a pack) */
-  function dueForRenewal(today) {
-    return state.packs.filter(function (p) { var st = C.status(p, today); return (st === 'low' || st === 'expired' || st === 'done') && !state.packs.some(function (q) { return q.renewsFrom === p.id; }); });
+  function dueForRenewal(today) { return C.renewalDue(state.packs, today); }
+  function copyRenewalNotes() {
+    var today = C.todayStr(), due = dueForRenewal(today);
+    if (!due.length) return toast(T('renewCopyNone'));
+    var text = due.map(function (p) {
+      var exp = p.expires ? T('renewExp', { date: p.expires }) : '';
+      return T('renewMsg', { name: p.student, n: C.remaining(p), exp: exp });
+    }).join('\n\n');
+    copy(text, T('renewCopyDone', { n: due.length }));
+  }
+  function applyGroupStamp(packs, today) {
+    var added = C.stampGroup(packs, today);
+    if (!added.length) return toast(T('stampGroupNone'));
+    save(); render();
+    toast(T('stampGroupDone', { n: added.length }), T('undo'), function () {
+      added.forEach(function (a) {
+        var p = state.packs.filter(function (x) { return x.id === a.packId; })[0];
+        if (p) C.removeStamp(p, a.id);
+      });
+      save(); render();
+    });
+  }
+  function undoLastStamp() {
+    var last = C.lastStamp(state.packs);
+    if (!last) return toast(T('undoLastNone'));
+    var p = state.packs.filter(function (x) { return x.id === last.packId; })[0];
+    var stamp = p && p.stamps.filter(function (s) { return s.id === last.id; })[0];
+    if (!p || !stamp) return toast(T('undoLastNone'));
+    var copyStamp = JSON.parse(JSON.stringify(stamp));
+    C.removeStamp(p, stamp.id); save(); render();
+    toast(T('undoLastDone', { name: last.student, date: last.date }), T('undo'), function () {
+      if (!p.stamps.some(function (s) { return s.id === copyStamp.id; })) p.stamps.push(copyStamp);
+      p.stamps.sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : 0; });
+      save(); render();
+    });
+  }
+  function statementText(student) {
+    var ym = C.todayStr().slice(0, 7), s = C.parentStatement(state.packs, student, ym, C.todayStr());
+    var month = fmt({ year: 'numeric', month: 'long' }, ym + '-01');
+    var out = [T('statementH'), T('statementFor', { name: s.student }), T('statementMonth', { month: month }), ''];
+    if (!s.lines.length) out.push(T('statementNone'));
+    s.lines.forEach(function (x) {
+      var kind = x.kind === 'noshow' ? T('kNoshow') : x.kind === 'excused' ? T('kExcused') : T('statementLesson');
+      out.push(x.date + '  ' + kind + (x.note ? '  ' + x.note : ''));
+    });
+    out.push('');
+    out.push(T('statementSum', { n: s.lessons, a: s.noshow, b: s.excused, left: s.left }));
+    out.push(T('statementEarned', { money: money(s.earned, s.currency) }));
+    if (state.teacher) out.push(T('receiptFrom', { t: state.teacher }));
+    return out.join('\n');
   }
   function renewAllDue() {
     var today = C.todayStr(), due = dueForRenewal(today); if (!due.length) return;

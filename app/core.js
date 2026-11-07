@@ -566,13 +566,67 @@
     if (order === 'remaining') return rows.sort(function (a, b) { return remaining(a) - remaining(b); });
     return rows.sort(function (a, b) { return priority[status(a, today)] - priority[status(b, today)]; });
   }
-  /* packs-tab filter: all | attn (needs attention) | unpaid | ended (complete or expired) */
-  var FILTERS = ['all', 'attn', 'unpaid', 'ended'];
+  /* packs-tab filter: all | attn | unpaid | ended | low (2 or fewer lessons left, including none) */
+  var FILTERS = ['all', 'attn', 'unpaid', 'ended', 'low'];
   function matchesFilter(p, f, today) {
     if (f === 'attn') return attention([p], today).length > 0;
     if (f === 'unpaid') return p.paid === false;
     if (f === 'ended') { var st = status(p, today); return st === 'done' || st === 'expired'; }
+    if (f === 'low') return remaining(p) <= 2;
     return true;
+  }
+  /* a lesson can be stamped today when the pack is still open and that date is not already stamped */
+  function stampable(p, today) {
+    if (!p || !/^\d{4}-\d{2}-\d{2}$/.test(String(today || ''))) return false;
+    if (remaining(p) <= 0 || status(p, today) === 'expired') return false;
+    return !(p.stamps || []).some(function (s) { return s && s.date === today; });
+  }
+  /* stamp every pack in the list that can take today's lesson. Returns the stamps actually added. */
+  function stampGroup(packs, today) {
+    var added = [];
+    (packs || []).forEach(function (p) {
+      if (!stampable(p, today) || !addStamp(p, today, '', '', false)) return;
+      var st = null;
+      for (var i = p.stamps.length - 1; i >= 0; i--) if (p.stamps[i].date === today) { st = p.stamps[i]; break; }
+      if (st) added.push({ packId: p.id, student: p.student, id: st.id, date: st.date });
+    });
+    return added;
+  }
+  /* the latest stamp by date; the same date keeps the later row, and a newer pack (earlier in the list) wins a tie */
+  function lastStamp(packs) {
+    var best = null;
+    (packs || []).forEach(function (p, pi) {
+      (p.stamps || []).forEach(function (s, si) {
+        if (!s || typeof s.id !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(String(s.date || ''))) return;
+        if (!best || s.date > best.date || (s.date === best.date && (pi < best.pi || (pi === best.pi && si > best.si)))) {
+          best = { packId: p.id, student: p.student, id: s.id, date: s.date, pi: pi, si: si };
+        }
+      });
+    });
+    return best ? { packId: best.packId, student: best.student, id: best.id, date: best.date } : null;
+  }
+  /* packs that can take a renewal and do not already have a successor */
+  function renewalDue(packs, today) {
+    packs = packs || [];
+    return packs.filter(function (p) {
+      var st = status(p, today);
+      return (st === 'low' || st === 'expired' || st === 'done') && !packs.some(function (q) { return q.renewsFrom === p.id; });
+    });
+  }
+  /* one parent's month: every pack under the same student name, lessons in that month, balance still open */
+  function parentStatement(packs, student, ym, today) {
+    var key = String(student || '').trim().toLowerCase();
+    var mine = (packs || []).filter(function (p) { return p.student.trim().toLowerCase() === key; });
+    var lines = [], lessons = 0, noshow = 0, excused = 0, earned = 0, left = 0;
+    mine.forEach(function (p) {
+      var rep = report(p, ym, today);
+      lessons += rep.lessons; noshow += rep.noshow; excused += rep.excused;
+      earned += rep.lessons * perLesson(p);
+      if (status(p, today) !== 'expired') left += remaining(p);
+      rep.rows.forEach(function (r) { lines.push({ date: r.date, kind: r.kind, note: r.note }); });
+    });
+    lines.sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : 0; });
+    return { student: mine.length ? mine[0].student : String(student || ''), ym: ym, lines: lines, lessons: lessons, noshow: noshow, excused: excused, earned: Math.round(earned * 100) / 100, left: left, currency: mine.length ? (mine[0].currency || 'USD') : 'USD' };
   }
   /* packs from a backup file: keep only records the app can use, and only stamps with a usable id and date,
      so one bad row cannot break the stats or the calendar. Applied on import; saved data is not touched. */
@@ -610,7 +664,7 @@
 
   var API = {
     plannedProblem: plannedProblem, cleanBackup: cleanBackup, clonePack: clonePack,
-    sortPacks: sortPacks, FILTERS: FILTERS, matchesFilter: matchesFilter, cleanPacks: cleanPacks, plannedDates: plannedDates, addPlanned: addPlanned, removePlanned: removePlanned,
+    sortPacks: sortPacks, FILTERS: FILTERS, matchesFilter: matchesFilter, stampable: stampable, stampGroup: stampGroup, lastStamp: lastStamp, renewalDue: renewalDue, parentStatement: parentStatement, cleanPacks: cleanPacks, plannedDates: plannedDates, addPlanned: addPlanned, removePlanned: removePlanned,
     skipPlanned: skipPlanned, progress: progress, groupByStudent: groupByStudent, logCsv: logCsv,
     INK_COUNT: INK_COUNT, setClosures: setClosures, inkOf: inkOf, setInk: setInk, weekPlan: weekPlan, justCompleted: justCompleted,
     todayStr: todayStr, parse: parse, daysBetween: daysBetween, addDays: addDays, addMonths: addMonths,
