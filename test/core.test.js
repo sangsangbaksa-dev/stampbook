@@ -533,3 +533,20 @@ test('cleanPacks keeps good planned dates only', () => {
   assert.deepEqual(C.cleanPacks([mk({ id: 'z', planned: ['2026-11-03', 'nope', '2026-11-03'] })])[0].planned, ['2026-11-03']);
   assert.equal(C.cleanPacks([mk({ id: 'y', planned: 'x' })])[0].planned, undefined);
 });
+
+test('refundQuote: gross unused value less a percentage fee, never negative', () => {
+  const p = mk({ total: 10, price: 500, stamps: [{ date: '2026-10-02', kind: 'done' }, { date: '2026-10-03', kind: 'done' }, { date: '2026-10-04', kind: 'done' }] });
+  assert.deepEqual(C.refundQuote(p, 10), { gross: 350, feePct: 10, fee: 35, net: 315, currency: 'USD' });
+  assert.equal(C.refundQuote(p).fee, 0);
+  assert.equal(C.refundQuote(p, 100).net, 0);
+  assert.equal(C.refundQuote(p, 33.33).net, 233.34);
+});
+test('refundQuote: no unused lessons gives zero; bad fee gives null', () => {
+  const done = mk({ total: 1, stamps: [{ date: '2026-10-02', kind: 'done' }] });
+  assert.deepEqual(C.refundQuote(done, 20), { gross: 0, feePct: 20, fee: 0, net: 0, currency: 'USD' });
+  const p = mk();
+  assert.equal(C.refundQuote(p, -1), null);
+  assert.equal(C.refundQuote(p, 101), null);
+  assert.equal(C.refundQuote(p, NaN), null);
+  assert.equal(C.refundQuote(p, '10'), null);
+});

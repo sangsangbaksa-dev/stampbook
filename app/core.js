@@ -28,6 +28,15 @@
   /* money still owed back to the student in lessons: the unearned part of what they paid */
   function unearned(p) { return Math.round(remaining(p) * perLesson(p) * 100) / 100; }
 
+  /* Refund estimate for the unused lessons. `feePct` is a cancellation fee in percent of the gross (0-100). Never negative. null if the fee is not a number in range. */
+  function refundQuote(p, feePct) {
+    var pct = feePct == null ? 0 : feePct;
+    if (typeof pct !== 'number' || !isFinite(pct) || pct < 0 || pct > 100) return null;
+    var gross = unearned(p);
+    var fee = Math.round(gross * pct) / 100;
+    var net = Math.round((gross - fee) * 100) / 100;
+    return { gross: gross, feePct: pct, fee: fee, net: net, currency: p.currency };
+  }
   /* status: done (all used) > expired (date passed, lessons left) > low (<=1 left) > active */
   function status(p, today) {
     today = today || todayStr();
@@ -702,7 +711,7 @@
     skipPlanned: skipPlanned, progress: progress, groupByStudent: groupByStudent, logCsv: logCsv,
     INK_COUNT: INK_COUNT, setClosures: setClosures, inkOf: inkOf, setInk: setInk, weekPlan: weekPlan, justCompleted: justCompleted,
     todayStr: todayStr, parse: parse, daysBetween: daysBetween, addDays: addDays, addMonths: addMonths,
-    counted: counted, used: used, setNote: setNote, monthsOf: monthsOf, renew: renew, extend: extend, attention: attention, matches: matches, remaining: remaining, perLesson: perLesson, unearned: unearned, status: status, daysLeft: daysLeft,
+    counted: counted, used: used, setNote: setNote, monthsOf: monthsOf, renew: renew, extend: extend, attention: attention, matches: matches, remaining: remaining, perLesson: perLesson, unearned: unearned, refundQuote: refundQuote, status: status, daysLeft: daysLeft,
     addStamp: addStamp, makeupsOwed: makeupsOwed, makeupList: makeupList, pace: pace, waiveMakeups: waiveMakeups, setNext: setNext, NEXT_MAX: NEXT_MAX, packsAtRisk: packsAtRisk, receipt: receipt, removeStamp: removeStamp, monthStats: monthStats, totalUnearned: totalUnearned, lapsed: lapsed,
     ymAdd: ymAdd, monthGrid: monthGrid, events: events, dayMap: dayMap, monthlyTrend: monthlyTrend, weekdayCounts: weekdayCounts, studentStats: studentStats, quiet: quiet, overview: overview, incomeByMonth: incomeByMonth, incomeCsv: incomeCsv, setSchedule: setSchedule, upcoming: upcoming, agenda: agenda, toIcs: toIcs, backupDue: backupDue, setPaid: setPaid, unpaid: unpaid, outstanding: outstanding, searchNotes: searchNotes, forecast: forecast, toggleSkip: toggleSkip, plannedWithSkips: plannedWithSkips, mergePacks: mergePacks, presets: presets, report: report,
     milestones: milestones, suggestFacts: suggestFacts, suggestPrompt: suggestPrompt, requestBody: requestBody, replyText: replyText, parseSuggestions: parseSuggestions, AI: AI, sanitizeForPrompt: sanitizeForPrompt,

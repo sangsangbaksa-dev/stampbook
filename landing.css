@@ -86,3 +86,6 @@ section[id]{scroll-margin-top:72px}
 @media(max-width:720px){.site-top{flex-wrap:wrap}.sitelinks{order:3;width:100%;margin-right:0;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;gap:0 14px}.sitelinks::-webkit-scrollbar{display:none}.sitelinks a{flex:0 0 auto}}
 @media(prefers-reduced-motion:reduce){.sitelinks a,.btn{transition:none}}
 @media(prefers-color-scheme:dark){:root{--paper:#0A1628;--primary:#2FA37C;--primary-hover:#4FCB9B;--surface:#0A1628;--card:#111f36;--line:#2a3a52}.btn{color:#06241A}.btn:hover{color:#06241A}.btn.ghost{color:var(--ink)}}
+/* refinements: tighter headings, consistent radii, note wraps under CTAs */
+h2{font-size:1.55rem;letter-spacing:-.015em;line-height:1.25;margin-bottom:20px}
+.note{display:block;margin:10px 0 0}
