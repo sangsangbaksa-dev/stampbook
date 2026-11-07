@@ -1,6 +1,6 @@
 # Stampbook
 
-A stamp card for prepaid lessons (tutors, coaches, instructors). App data is stored in browser localStorage; the optional licence check uses a serverless endpoint and an external licensing service. 5 languages (en, ko, ja, zh, es). Free: 3 active packs. Pro: unlimited packs, balance links, CSV.
+A stamp card for prepaid lessons (tutors, coaches, instructors). Lesson data is stored in browser localStorage. Optional cloud backup uses Supabase when `config.js` has a project URL and key. The licence check calls `/api/license`, which asks Lemon Squeezy. Five languages (en, ko, ja, zh, es). There is no free pack allowance. The linked checkout product is named Stampbook Pro; the price in `config.js` must be checked against the public checkout. This repository does not confirm that live card charges are enabled.
 
 ## Features
 
@@ -23,7 +23,7 @@ A stamp card for prepaid lessons (tutors, coaches, instructors). App data is sto
 - Launch: see `docs/launch-checklist.md`. All launch values live in `config.js`; `node scripts/build.js` (run by Vercel on deploy) regenerates the per-language landing pages, legal pages, sitemap and robots from it.
 - Hosting: Cloudflare Pages (`docs/cloudflare-pages.md`; `functions/api/license.js`, `_headers`, `_redirects`, build `node scripts/build.js --dist`). Vercel config (`vercel.json`, `api/license.js`) is kept for the existing deployment. Shared logic: `lib/license-core.js`.
 - `api/license.js`: Lemon Squeezy licence-key check, enabled by env vars `LEMONSQUEEZY_PRODUCT_ID (optional)` (see `docs/license-server.md`).
-- Old note, still true until those env vars are set: placeholders to replace before charging: `config.js` (`checkoutUrl`, `supportEmail`), the Pro link in `index.html`, contact in `privacy.html`. The offline licence check in `app/core.js` is a placeholder scheme (anyone can mint keys) and must be replaced with vendor-issued keys.
+- The offline licence check in `app/core.js` runs only when the licence function is absent or answers `{configured:false}`. `config.js` already holds the checkout URL, price, support email and Supabase settings. The store hostname is not evidence that the link points at the wrong product. Product and variant ids are not hardcoded in the app.
 
 ## 배포 전 검증
 

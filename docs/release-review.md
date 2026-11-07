@@ -1,5 +1,15 @@
 # 출시 전 운영 확인
 
+## 2026-11-07에 구분한 결제 정보
+
+공개 결제 링크 `config.js`의 checkout URL을 같은 날 다시 열었습니다. 구매나 카드 입력은 하지 않았습니다. 페이지 데이터에서 읽은 값: 상품명 Stampbook Pro, product id 1492658, variant id 2325497, 가격 1900(USD), `price_model.category`는 `one_time`, `is_subscription`은 false, 상품 `status`는 published, 상품 객체의 `test_mode`는 true, 페이지의 `isTestMode`는 false, variant `status`는 pending이었습니다. 같은 응답에는 활성화 횟수, 키 만료, 환불 기간이 없었습니다. 따라서 실제 카드 결제가 켜져 있다고 보지 않습니다.
+
+아래는 대시보드를 다시 확인하지 않은 과거 생성 기록입니다. 고객 문구에 현재 사실로 넣지 않았습니다. 활성화 한도 5, 키 만료 없음, 스토어가 아직 테스트 모드라는 보고. 스토어 호스트 `quickbillapp.lemonsqueezy.com`만으로 다른 상품이라고 보지 않았고, checkout URL과 상품·변형 ID는 바꾸지 않았습니다.
+
+`5255448` 커밋은 이 저장소와 확인한 형제 저장소에 없습니다. `06db669`는 `main`의 조상입니다. `origin/claude/fervent-dijkstra-rzpbo8`의 끝 커밋 `fa2d560`과 그 앞의 인사이트 보상 카드 커밋은 `main`과 `https://stampbook-5kf.pages.dev`의 `app/app.js`에 없습니다. 라이브 `app/app.js`는 `de9000e`와 같고, `main`의 이후 수정(정렬 등)은 라이브에 없습니다.
+
+
+
 이 문서는 법률 자문이나 법적 적합성 인증이 아닙니다. 실제 운영 주체와 서비스 제공 지역의 정보가 확인되어야 하므로 아래 항목을 운영자가 관련 전문가와 검토해야 합니다.
 
 - [ ] 운영 주체의 법적 상호·사업자 정보, 연락처, 서비스 제공 지역을 확인합니다.
